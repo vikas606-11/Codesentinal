@@ -1,0 +1,157 @@
+rules:
+  - id: sql-injection
+    languages: [python]
+    severity: ERROR
+    message: User-controlled data appears to be inserted directly into an SQL query string.
+    metadata:
+      category: security
+      cs_severity: CRITICAL
+      title: Potential SQL Injection
+      cwe: ["CWE-89"]
+    pattern-either:
+      - pattern: $CUR.execute($Q % ..., ...)
+      - pattern: $CUR.execute($Q + ..., ...)
+      - pattern: $CUR.execute(f"...{...}...", ...)
+      - pattern: $CUR.execute("...".format(...), ...)
+
+  - id: code-injection-eval
+    languages: [python]
+    severity: ERROR
+    message: eval() or exec() runs arbitrary code. Never pass user-controlled input to it.
+    metadata:
+      category: security
+      cs_severity: CRITICAL
+      title: Dangerous use of eval/exec
+      cwe: ["CWE-95"]
+    patterns:
+      - pattern-either:
+          - pattern: eval($X)
+          - pattern: exec($X)
+      - pattern-not: eval("...")
+      - pattern-not: exec("...")
+
+  - id: command-injection
+    languages: [python]
+    severity: ERROR
+    message: A shell command is built from a non-constant value, which allows command injection.
+    metadata:
+      category: security
+      cs_severity: HIGH
+      title: Potential OS Command Injection
+      cwe: ["CWE-78"]
+    patterns:
+      - pattern-either:
+          - pattern: subprocess.$F($CMD, ..., shell=True, ...)
+          - pattern: os.system($CMD)
+          - pattern: os.popen($CMD)
+      - pattern-not: subprocess.$F("...", ..., shell=True, ...)
+      - pattern-not: os.system("...")
+      - pattern-not: os.popen("...")
+
+  - id: hardcoded-credential
+    languages: [python]
+    severity: ERROR
+    message: A password, key, or token appears to be hardcoded in source code.
+    metadata:
+      category: security
+      cs_severity: HIGH
+      title: Hardcoded credential
+      cwe: ["CWE-798"]
+    patterns:
+      - pattern: $NAME = "..."
+      - pattern-not: $NAME = ""
+      - metavariable-regex:
+          metavariable: $NAME
+          regex: (?i).*(password|passwd|pwd|secret|api_?key|token).*
+
+  - id: insecure-deserialization-pickle
+    languages: [python]
+    severity: ERROR
+    message: Unpickling untrusted data can execute arbitrary code.
+    metadata:
+      category: security
+      cs_severity: HIGH
+      title: Insecure deserialization (pickle)
+      cwe: ["CWE-502"]
+    pattern-either:
+      - pattern: pickle.loads(...)
+      - pattern: pickle.load(...)
+
+  - id: insecure-yaml-load
+    languages: [python]
+    severity: ERROR
+    message: yaml.load() without a safe loader can construct arbitrary Python objects.
+    metadata:
+      category: security
+      cs_severity: HIGH
+      title: Unsafe YAML load
+      cwe: ["CWE-502"]
+    patterns:
+      - pattern: yaml.load(...)
+      - pattern-not: yaml.load(..., Loader=yaml.SafeLoader)
+      - pattern-not: yaml.load(..., Loader=yaml.CSafeLoader)
+
+  - id: weak-hash-algorithm
+    languages: [python]
+    severity: WARNING
+    message: MD5 and SHA-1 are broken for security purposes. Use SHA-256 or a password hashing function.
+    metadata:
+      category: security
+      cs_severity: MEDIUM
+      title: Weak hash algorithm
+      cwe: ["CWE-327"]
+    pattern-either:
+      - pattern: hashlib.md5(...)
+      - pattern: hashlib.sha1(...)
+
+  - id: tls-verification-disabled
+    languages: [python]
+    severity: WARNING
+    message: TLS certificate verification is disabled, which allows man-in-the-middle attacks.
+    metadata:
+      category: security
+      cs_severity: MEDIUM
+      title: TLS verification disabled
+      cwe: ["CWE-295"]
+    pattern: requests.$F(..., verify=False, ...)
+
+  - id: flask-debug-enabled
+    languages: [python]
+    severity: WARNING
+    message: Running the app with debug=True exposes an interactive debugger in production.
+    metadata:
+      category: security
+      cs_severity: MEDIUM
+      title: Debug mode enabled
+      cwe: ["CWE-489"]
+    pattern: $APP.run(..., debug=True, ...)
+
+  - id: bare-except
+    languages: [python]
+    severity: INFO
+    message: A bare except hides every error, including KeyboardInterrupt. Catch specific exceptions.
+    metadata:
+      category: quality
+      cs_severity: LOW
+      title: Bare except clause
+    pattern: |
+      try:
+          ...
+      except:
+          ...
+
+  - id: mutable-default-argument
+    languages: [python]
+    severity: INFO
+    message: A mutable default argument is shared between calls and causes subtle bugs.
+    metadata:
+      category: quality
+      cs_severity: LOW
+      title: Mutable default argument
+    pattern-either:
+      - pattern: |
+          def $F(..., $A=[], ...):
+              ...
+      - pattern: |
+          def $F(..., $A={}, ...):
+              ...

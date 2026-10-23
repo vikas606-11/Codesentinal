@@ -1,0 +1,17 @@
+.env
+.venv/
+venv/
+__pycache__/
+*.pyc
+node_modules/
+dist/
+build/
+.git/
+*.db
+backend/data/
+backend/workspaces/
+.pytest_cache/
+.DS_Store
+
+# local wheel cache (large)
+backend/wheels/*.whl
