@@ -1,5 +1,5 @@
 {
-  "product": "Nexogent",
+  "product": "CodeSentinal.",
   "one_liner": "An AWS SecOps agent deployed into each client's own AWS account that discovers all resources, runs read-only security checks, ranks findings by risk, and shows a posture dashboard with Bedrock-generated explanations.",
   "delivery_model": {
     "type": "per-client product, NOT SaaS",
@@ -17,15 +17,15 @@
     "GuardDuty, Security Hub, Inspector are NOT used (trial-only, then paid). Rely on free read-only AWS APIs + open-source Prowler."
   ],
   "architecture": {
-    "cmd/nexogent": "Go agent / API server entrypoint.",
+    "cmd/CodeSentinal.": "Go agent / API server entrypoint.",
     "internal/types": "Core domain types (Resource, Finding, RiskFactors, PostureReview, Explanation).",
     "internal/discovery": "MULTI-REGION read-only inventory (E2/B3). EnabledRegions() via ec2:DescribeRegions; Inventory() runs regional services (ec2,lambda,rds,dynamodb,eks) concurrently per region + global services (iam, s3 with per-bucket region) once. Each resource carries its Region.",
     "internal/collectors": "Read-only security checks. ownchecks.go (MULTI-REGION own checks: IAM no-MFA/admin [global], S3 public/encryption [global], EC2 SG 0.0.0.0/0 + EBS encryption, EKS public endpoint, RDS public/unencrypted, Lambda public URL, DynamoDB encryption, CloudTrail multi-region; WithRegions + WithFilter(service,resource) for scoped audits) + prowler.go (ingests Prowler OCSF JSON) + scoutsuite.go + cloudsplaining.go (ingest their JSON behind the same Finding model). Tests: prowler_test.go.",
-    "internal/store": "Persistence (E1). Store interface + Memory (fallback) + Dynamo (table nexogent-reviews, pk/sk schema, list newest-first). store_test.go passing.",
+    "internal/store": "Persistence (E1). Store interface + Memory (fallback) + Dynamo (table CodeSentinal.-reviews, pk/sk schema, list newest-first). store_test.go passing.",
     "internal/auth": "Single-role superadmin auth gate (B1/E4). Password -> bearer token (in-memory, 12h TTL), Middleware protects /api except health+login+auth/status. Open if no password (dev, logs warning).",
     "internal/api": "HTTP API (v1). Auth: POST /api/v1/auth/login, GET /auth/status. Reviews: POST /review (full, persists latest), GET /review/latest, GET /reviews (history). Portal: GET /services (landing+counts), GET /regions, GET /resources?service=&region= (region filter), GET /resource?id= (resource audit page). On-demand: POST /audit?service=&resource= (RunAudit merges scoped findings into latest WITHOUT wiping other scopes). POST /explain?review=&finding=. GET /integrations (GuardDuty/SecurityHub/Inspector as disabled toggles, B6). Gate middleware + CORS.",
     "dashboard/": "React (Vite) SPA, hash-router. views/Login.jsx (superadmin gate), Services.jsx (B2 service cards + full audit), ServicePage.jsx (B3 resources table + region filter + audit), ResourcePage.jsx (B4/B5 security view + Audit button + explain drawer), Integrations.jsx (B6 disabled toggles). api.js carries bearer token. Served by unprivileged Nginx.",
-    "deploy/helm/nexogent": "Helm chart — MICROSERVICES: backend.yaml (Go agent Deployment+Service, IRSA, pullPolicy Always), frontend.yaml (React/Nginx Deployment+Service, unprivileged nginx uid101 + writable emptyDirs for conf/cache/run/tmp), prowler-cronjob.yaml (Prowler CronJob, runAsUser 1000, entrypoint takes args — NO command override), prowler-install-job.yaml (post-install hook), prowler-pvc.yaml (shared EBS PVC gp2 RWO), ingress.yaml (ALB: / -> frontend, /api+/health -> backend), serviceaccount.yaml (IRSA SA shared by backend+prowler), _helpers.tpl, NOTES.txt, values.yaml."
+    "deploy/helm/CodeSentinal.": "Helm chart — MICROSERVICES: backend.yaml (Go agent Deployment+Service, IRSA, pullPolicy Always), frontend.yaml (React/Nginx Deployment+Service, unprivileged nginx uid101 + writable emptyDirs for conf/cache/run/tmp), prowler-cronjob.yaml (Prowler CronJob, runAsUser 1000, entrypoint takes args — NO command override), prowler-install-job.yaml (post-install hook), prowler-pvc.yaml (shared EBS PVC gp2 RWO), ingress.yaml (ALB: / -> frontend, /api+/health -> backend), serviceaccount.yaml (IRSA SA shared by backend+prowler), _helpers.tpl, NOTES.txt, values.yaml."
   },
   "aws_context": {
     "account_id": "338449997393",
@@ -33,11 +33,11 @@
     "region": "us-east-1",
     "eks_cluster": "eks-lab (v1.37, ACTIVE)",
     "eks_nodegroup": "core",
-    "bedrock": "Anthropic Claude models available in us-east-1 (e.g. us.anthropic.claude-haiku-4-5-20251001-v1:0). The NexogentReadOnly IRSA role HAS bedrock:InvokeModel and the model exists, but InvokeModel fails with AccessDeniedException INVALID_PAYMENT_INSTRUMENT -> the AWS account has no valid payment method, so the Marketplace model subscription can't complete. This is an account-billing action (console), not an IAM/code issue. Offline fallback works perfectly meanwhile. Add a valid payment instrument to enable live Bedrock.",
+    "bedrock": "Anthropic Claude models available in us-east-1 (e.g. us.anthropic.claude-haiku-4-5-20251001-v1:0). The CodeSentinal.ReadOnly IRSA role HAS bedrock:InvokeModel and the model exists, but InvokeModel fails with AccessDeniedException INVALID_PAYMENT_INSTRUMENT -> the AWS account has no valid payment method, so the Marketplace model subscription can't complete. This is an account-billing action (console), not an IAM/code issue. Offline fallback works perfectly meanwhile. Add a valid payment instrument to enable live Bedrock.",
     "note": "EKS control plane + nodes bill hourly even idle. Set a budget alarm. Scale nodegroup down when not demoing."
   },
-  "verified_live": "v1 MICROSERVICES live on eks-lab (us-east-1) via public ALB http://k8s-nexogent-nexogent-48d3232e4b-*.us-east-1.elb.amazonaws.com. Backend store=dynamodb:nexogent-reviews. Auth gate ON (superadmin). Verified: 401 without token; login works; /services lists 8 services; multi-region discovery scanned 17 enabled regions; full review=13 own-check findings (ec2/eks/iam/cloudtrail/dynamodb) incl new EBS/CloudTrail/DynamoDB checks; region filter works; scoped /audit?service=ec2 returns 7 and MERGES into latest without wiping iam/cloudtrail/etc; resource page for IAM user shows its 2 findings (no-MFA risk71, admin risk61); integrations=3 disabled toggles; SPA + assets HTTP 200. go build/test pass, helm lint clean.",
-  "v1_addons_status": "Built per Addons.md: B1 superadmin auth gate (internal/auth, Secret nexogent-auth, SUPERADMIN_PASSWORD). B2 services landing. B3 service page + region filter (multi-region discovery E2). B4 resource=audit page. B5 on-demand /audit (RunAudit merge). B6 GuardDuty/SecurityHub/Inspector disabled toggles. E1 DynamoDB persistence (internal/store). E3 in-process SCAN_INTERVAL scheduler (default 6h) + Prowler CronJob. E6 more own-checks (RDS/Lambda/DynamoDB/EBS/CloudTrail). D: ScoutSuite + cloudsplaining collectors wired behind Finding model, CronJob templates present but DISABLED by default (enable per client once image/command confirmed — not verified live yet).",
+  "verified_live": "v1 MICROSERVICES live on eks-lab (us-east-1) via public ALB http://k8s-CodeSentinal.-CodeSentinal.-48d3232e4b-*.us-east-1.elb.amazonaws.com. Backend store=dynamodb:CodeSentinal.-reviews. Auth gate ON (superadmin). Verified: 401 without token; login works; /services lists 8 services; multi-region discovery scanned 17 enabled regions; full review=13 own-check findings (ec2/eks/iam/cloudtrail/dynamodb) incl new EBS/CloudTrail/DynamoDB checks; region filter works; scoped /audit?service=ec2 returns 7 and MERGES into latest without wiping iam/cloudtrail/etc; resource page for IAM user shows its 2 findings (no-MFA risk71, admin risk61); integrations=3 disabled toggles; SPA + assets HTTP 200. go build/test pass, helm lint clean.",
+  "v1_addons_status": "Built per Addons.md: B1 superadmin auth gate (internal/auth, Secret CodeSentinal.-auth, SUPERADMIN_PASSWORD). B2 services landing. B3 service page + region filter (multi-region discovery E2). B4 resource=audit page. B5 on-demand /audit (RunAudit merge). B6 GuardDuty/SecurityHub/Inspector disabled toggles. E1 DynamoDB persistence (internal/store). E3 in-process SCAN_INTERVAL scheduler (default 6h) + Prowler CronJob. E6 more own-checks (RDS/Lambda/DynamoDB/EBS/CloudTrail). D: ScoutSuite + cloudsplaining collectors wired behind Finding model, CronJob templates present but DISABLED by default (enable per client once image/command confirmed — not verified live yet).",
   "cluster_addons_installed": "Installed on eks-lab (see deploy/CLUSTER_PREREQS.md): aws-ebs-csi-driver addon (IRSA role AmazonEKS_EBS_CSI_DriverRole) for the shared PVC; AWS Load Balancer Controller v2.9.2 in kube-system (IRSA role AmazonEKSLoadBalancerControllerRole, policy AWSLoadBalancerControllerIAMPolicy) for the ALB ingress (ingressclass 'alb').",
   "gotchas_learned": [
     "image tag 'latest' + pullPolicy IfNotPresent = node keeps stale image; MUST use pullPolicy Always for mutable latest (fixed in values.yaml).",
@@ -47,17 +47,17 @@
     "gp2 storageclass needs the EBS CSI driver in k8s 1.37 (in-tree provisioner gone)."
   ],
   "repo": {
-    "github": "sriramg-aivar/nexogent (PRIVATE)",
+    "github": "sriramg-aivar/CodeSentinal. (PRIVATE)",
     "default_branch": "main",
-    "module": "github.com/sriramg-aivar/nexogent"
+    "module": "github.com/sriramg-aivar/CodeSentinal."
   },
-  "v2_status": "v2 MSP build DEPLOYED and VERIFIED LIVE on eks-lab (us-east-1), branch v2-msp (also merged to main). Backend v2 image live (kube_available=true, store=dynamodb:nexogent-reviews, auth enforced). Verified via public ALB http://k8s-nexogent-nexogent-48d3232e4b-*.us-east-1.elb.amazonaws.com: auth gate (401 no-token, 200 with token); full multi-region scan (17 regions, 25 own-check findings, 2 duplicates merged, AP-6 attack path); 2nd scan unchanged -> new=0/fixed=0/regressed=0 (stable fingerprints); 3 history/trend points; report create->submit->approve->download valid DOCX; activity log records all actions; integrations show 3 disabled toggles; scoped ec2 quick-audit preserved all 7 iam findings (no stale data); SPA+assets+CSP header OK. All pure packages gofmt/vet/race clean. Helm v2: TLS/cert + inbound-cidrs, generated/reused SESSION_SECRET, deep-scan RBAC, prowler podAffinity. IAM policy v3 (extra reads).",
+  "v2_status": "v2 MSP build DEPLOYED and VERIFIED LIVE on eks-lab (us-east-1), branch v2-msp (also merged to main). Backend v2 image live (kube_available=true, store=dynamodb:CodeSentinal.-reviews, auth enforced). Verified via public ALB http://k8s-CodeSentinal.-CodeSentinal.-48d3232e4b-*.us-east-1.elb.amazonaws.com: auth gate (401 no-token, 200 with token); full multi-region scan (17 regions, 25 own-check findings, 2 duplicates merged, AP-6 attack path); 2nd scan unchanged -> new=0/fixed=0/regressed=0 (stable fingerprints); 3 history/trend points; report create->submit->approve->download valid DOCX; activity log records all actions; integrations show 3 disabled toggles; scoped ec2 quick-audit preserved all 7 iam findings (no stale data); SPA+assets+CSP header OK. All pure packages gofmt/vet/race clean. Helm v2: TLS/cert + inbound-cidrs, generated/reused SESSION_SECRET, deep-scan RBAC, prowler podAffinity. IAM policy v3 (extra reads).",
   "pending_tasks": [
     "DONE v2 phases 0-6: all backend packages + API + portal + deploy + docs; build/vet/race/helm-lint green; demo + auth verified.",
     "TODO phase 7: verify on the real eks-lab account (full scan, CloudTrail card, quick vs deep, fixed/regressed lifecycle, report open in Word, 2-replica session, Slack test).",
     "TODO: push v2-msp and open a PR / merge to main.",
     "BLOCKED (account action): Bedrock INVALID_PAYMENT_INSTRUMENT; offline templates work meanwhile.",
-    "LATER (paid build, Part B of Nexogent-Build-Spec.md): Security Hub/GuardDuty/Inspector/Access Analyzer readers — do only when instructed."
+    "LATER (paid build, Part B of CodeSentinal.-Build-Spec.md): Security Hub/GuardDuty/Inspector/Access Analyzer readers — do only when instructed."
   ],
   "rules": [
     "Never use AWS keys pasted into chat; only the locally configured profile / in-cluster IRSA.",

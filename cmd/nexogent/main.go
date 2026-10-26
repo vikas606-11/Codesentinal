@@ -1,4 +1,4 @@
-// Command nexogent runs the SecOps agent API server.
+// Command CodeSentinal. runs the SecOps agent API server.
 package main
 
 import (
@@ -12,11 +12,11 @@ import (
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 
-	"github.com/sriramg-aivar/nexogent/internal/api"
-	"github.com/sriramg-aivar/nexogent/internal/demo"
-	"github.com/sriramg-aivar/nexogent/internal/kube"
-	"github.com/sriramg-aivar/nexogent/internal/session"
-	"github.com/sriramg-aivar/nexogent/internal/store"
+	"github.com/sriramg-aivar/CodeSentinal./internal/api"
+	"github.com/sriramg-aivar/CodeSentinal./internal/demo"
+	"github.com/sriramg-aivar/CodeSentinal./internal/kube"
+	"github.com/sriramg-aivar/CodeSentinal./internal/session"
+	"github.com/sriramg-aivar/CodeSentinal./internal/store"
 )
 
 const version = "2.0.0"
@@ -97,7 +97,7 @@ func main() {
 		TrustProxy:     env("TRUST_PROXY", "") == "true",
 		PublicURL:      env("PUBLIC_URL", ""),
 		Kube:           runner,
-		ProwlerCronJob: env("PROWLER_CRONJOB_NAME", "nexogent-prowler"),
+		ProwlerCronJob: env("PROWLER_CRONJOB_NAME", "CodeSentinal.-prowler"),
 		Demo:           demoMode,
 		Local:          local,
 		Version:        version,
@@ -114,7 +114,7 @@ func main() {
 		}
 	}
 
-	log.Printf("nexogent v%s listening on %s (region %s)", version, addr, region)
+	log.Printf("CodeSentinal. v%s listening on %s (region %s)", version, addr, region)
 	if err := http.ListenAndServe(addr, srv.Routes()); err != nil {
 		log.Fatal(err)
 	}

@@ -5,11 +5,11 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: nexogent-deepscan
+  name: CodeSentinal.-deepscan
   namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "nexogent.labels" . | nindent 4 }}
-    app.kubernetes.io/name: nexogent
+    {{- include "CodeSentinal..labels" . | nindent 4 }}
+    app.kubernetes.io/name: CodeSentinal.
 rules:
   - apiGroups: ["batch"]
     resources: ["cronjobs"]
@@ -21,17 +21,17 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: nexogent-deepscan
+  name: CodeSentinal.-deepscan
   namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "nexogent.labels" . | nindent 4 }}
-    app.kubernetes.io/name: nexogent
+    {{- include "CodeSentinal..labels" . | nindent 4 }}
+    app.kubernetes.io/name: CodeSentinal.
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: nexogent-deepscan
+  name: CodeSentinal.-deepscan
 subjects:
   - kind: ServiceAccount
-    name: {{ include "nexogent.serviceAccountName" . }}
+    name: {{ include "CodeSentinal..serviceAccountName" . }}
     namespace: {{ .Release.Namespace }}
 {{- end -}}

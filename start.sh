@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# Nexogent — full spin-up (microservice architecture).
+# CodeSentinal. — full spin-up (microservice architecture).
 #
 # Deploys THREE workloads into the client's EKS:
-#   - nexogent-backend   (Go agent/API, read-only, IRSA)
-#   - nexogent-frontend  (React dashboard served by Nginx)
-#   - nexogent-prowler   (open-source Prowler scanner, CronJob, read-only, IRSA)
+#   - CodeSentinal.-backend   (Go agent/API, read-only, IRSA)
+#   - CodeSentinal.-frontend  (React dashboard served by Nginx)
+#   - CodeSentinal.-prowler   (open-source Prowler scanner, CronJob, read-only, IRSA)
 # plus a shared PVC (Prowler OCSF results) and an ALB Ingress (public URL).
 #
 # READ-ONLY product: it only reads the account and reports. No static AWS keys
@@ -18,13 +18,13 @@ set -euo pipefail
 REGION="${REGION:-us-east-1}"
 CLUSTER="${CLUSTER:-eks-lab}"
 NODEGROUP="${NODEGROUP:-core}"
-NAMESPACE="${NAMESPACE:-nexogent}"
-BACKEND_REPO="${BACKEND_REPO:-nexogent}"
-FRONTEND_REPO="${FRONTEND_REPO:-nexogent-frontend}"
+NAMESPACE="${NAMESPACE:-CodeSentinal.}"
+BACKEND_REPO="${BACKEND_REPO:-CodeSentinal.}"
+FRONTEND_REPO="${FRONTEND_REPO:-CodeSentinal.-frontend}"
 IMAGE_TAG="${IMAGE_TAG:-latest}"
-POLICY_NAME="${POLICY_NAME:-NexogentReadOnly}"
-SA_NAME="${SA_NAME:-nexogent-sa}"
-ROLE_NAME="${ROLE_NAME:-NexogentReadOnly}"
+POLICY_NAME="${POLICY_NAME:-CodeSentinal.ReadOnly}"
+SA_NAME="${SA_NAME:-CodeSentinal.-sa}"
+ROLE_NAME="${ROLE_NAME:-CodeSentinal.ReadOnly}"
 DESIRED_NODES="${DESIRED_NODES:-2}"
 
 cd "$(dirname "$0")"
@@ -68,7 +68,7 @@ if aws iam get-policy --policy-arn "${POLICY_ARN}" >/dev/null 2>&1; then
 else
   echo ">> Creating IAM policy ${POLICY_NAME}"
   aws iam create-policy --policy-name "${POLICY_NAME}" \
-    --policy-document file://deploy/iam/nexogent-readonly-policy.json >/dev/null
+    --policy-document file://deploy/iam/CodeSentinal.-readonly-policy.json >/dev/null
 fi
 
 # ---- 4. OIDC + IRSA service account (read-only role for backend + prowler) ----
@@ -86,7 +86,7 @@ ROLE_ARN="$(aws iam get-role --role-name "${ROLE_NAME}" --query 'Role.Arn' --out
 echo ">> IRSA role: ${ROLE_ARN}"
 
 # ---- 4b. DynamoDB reviews table (persistence) ----
-REVIEWS_TABLE="${REVIEWS_TABLE:-nexogent-reviews}"
+REVIEWS_TABLE="${REVIEWS_TABLE:-CodeSentinal.-reviews}"
 if [ -n "${REVIEWS_TABLE}" ]; then
   if aws dynamodb describe-table --table-name "${REVIEWS_TABLE}" --region "${REGION}" >/dev/null 2>&1; then
     echo ">> DynamoDB table ${REVIEWS_TABLE} exists"
@@ -126,8 +126,8 @@ aws eks update-nodegroup-config --cluster-name "${CLUSTER}" --nodegroup-name "${
   --scaling-config "minSize=1,maxSize=4,desiredSize=${DESIRED_NODES}" >/dev/null 2>&1 || true
 
 # ---- 7. Helm install (microservices) ----
-echo ">> helm upgrade --install nexogent"
-helm upgrade --install nexogent deploy/helm/nexogent \
+echo ">> helm upgrade --install CodeSentinal."
+helm upgrade --install CodeSentinal. deploy/helm/CodeSentinal. \
   --namespace "${NAMESPACE}" --create-namespace \
   --set backend.image.repository="${BACKEND_IMAGE}" \
   --set backend.image.tag="${IMAGE_TAG}" \
@@ -142,13 +142,13 @@ helm upgrade --install nexogent deploy/helm/nexogent \
 echo ">> Done. Workloads:"
 kubectl -n "${NAMESPACE}" get deploy,svc,cronjob,ingress,pods
 
-URL="$(kubectl -n "${NAMESPACE}" get ingress nexogent -o jsonpath='{.status.loadBalancer.ingress[0].hostname}' 2>/dev/null || true)"
+URL="$(kubectl -n "${NAMESPACE}" get ingress CodeSentinal. -o jsonpath='{.status.loadBalancer.ingress[0].hostname}' 2>/dev/null || true)"
 echo
 if [ -n "${URL}" ]; then
   echo ">> Public URL (ALB may take ~2-3 min): http://${URL}"
 else
   echo ">> Ingress ALB still provisioning. Re-check with:"
-  echo "   kubectl -n ${NAMESPACE} get ingress nexogent -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'"
+  echo "   kubectl -n ${NAMESPACE} get ingress CodeSentinal. -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'"
 fi
 echo ">> Trigger an immediate Prowler scan (otherwise it runs on schedule):"
-echo "   kubectl -n ${NAMESPACE} create job --from=cronjob/nexogent-prowler prowler-now"
+echo "   kubectl -n ${NAMESPACE} create job --from=cronjob/CodeSentinal.-prowler prowler-now"

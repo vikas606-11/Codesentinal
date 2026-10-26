@@ -1,4 +1,4 @@
-# Nexogent — Finished (Free Build)
+# CodeSentinal. — Finished (Free Build)
 
 Everything in the free build is **built, tested, and deployed live** to our account
 (`eks-lab`, us-east-1). Read-only, pure-Go backend + React portal, no paid AWS
@@ -86,4 +86,4 @@ services. Detection is done by the scanners/own-checks; Bedrock only writes word
 ## Docs
 - `docs/free/DEPLOYMENT.md` (architecture & how it works), `RUNBOOK.md` (setup,
   start/stop, debug), `VERIFY.md` (test cases), `Sow-free-build.md` (the SOW),
-  `Nexogent-Build-Spec.md` (engineering spec).
+  `CodeSentinal.-Build-Spec.md` (engineering spec).

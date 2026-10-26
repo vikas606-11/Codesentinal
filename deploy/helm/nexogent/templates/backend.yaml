@@ -1,23 +1,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: nexogent-backend
+  name: CodeSentinal.-backend
   namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "nexogent.labels" . | nindent 4 }}
-    app.kubernetes.io/name: nexogent
+    {{- include "CodeSentinal..labels" . | nindent 4 }}
+    app.kubernetes.io/name: CodeSentinal.
     app.kubernetes.io/component: backend
 spec:
   replicas: {{ .Values.backend.replicaCount }}
   selector:
     matchLabels:
-      {{- include "nexogent.componentSelector" (dict "root" . "component" "backend") | nindent 6 }}
+      {{- include "CodeSentinal..componentSelector" (dict "root" . "component" "backend") | nindent 6 }}
   template:
     metadata:
       labels:
-        {{- include "nexogent.componentSelector" (dict "root" . "component" "backend") | nindent 8 }}
+        {{- include "CodeSentinal..componentSelector" (dict "root" . "component" "backend") | nindent 8 }}
     spec:
-      serviceAccountName: {{ include "nexogent.serviceAccountName" . }}
+      serviceAccountName: {{ include "CodeSentinal..serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
         runAsUser: 65532
@@ -59,20 +59,20 @@ spec:
             - name: SUPERADMIN_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.auth.existingSecret | default "nexogent-auth" }}
+                  name: {{ .Values.auth.existingSecret | default "CodeSentinal.-auth" }}
                   key: SUPERADMIN_PASSWORD
                   optional: true
             {{- end }}
             - name: SESSION_SECRET
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.auth.existingSecret | default "nexogent-auth" }}
+                  name: {{ .Values.auth.existingSecret | default "CodeSentinal.-auth" }}
                   key: SESSION_SECRET
                   optional: true
             - name: SLACK_WEBHOOK_URL
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.auth.existingSecret | default "nexogent-auth" }}
+                  name: {{ .Values.auth.existingSecret | default "CodeSentinal.-auth" }}
                   key: SLACK_WEBHOOK_URL
                   optional: true
             - name: SESSION_TTL
@@ -90,7 +90,7 @@ spec:
             - name: KUBE_NAMESPACE
               value: {{ .Release.Namespace | quote }}
             - name: PROWLER_CRONJOB_NAME
-              value: "nexogent-prowler"
+              value: "CodeSentinal.-prowler"
           {{- if .Values.prowlerResults.enabled }}
           volumeMounts:
             - name: results
@@ -111,7 +111,7 @@ spec:
       volumes:
         - name: results
           persistentVolumeClaim:
-            claimName: nexogent-prowler-results
+            claimName: CodeSentinal.-prowler-results
       {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector: {{- toYaml . | nindent 8 }}
@@ -120,16 +120,16 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: nexogent-backend
+  name: CodeSentinal.-backend
   namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "nexogent.labels" . | nindent 4 }}
-    app.kubernetes.io/name: nexogent
+    {{- include "CodeSentinal..labels" . | nindent 4 }}
+    app.kubernetes.io/name: CodeSentinal.
     app.kubernetes.io/component: backend
 spec:
   type: ClusterIP
   selector:
-    {{- include "nexogent.componentSelector" (dict "root" . "component" "backend") | nindent 4 }}
+    {{- include "CodeSentinal..componentSelector" (dict "root" . "component" "backend") | nindent 4 }}
   ports:
     - name: http
       port: {{ .Values.backend.service.port }}

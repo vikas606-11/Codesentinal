@@ -87,7 +87,7 @@ func BuildDigest(events []Event, publicURL string) Message {
 		counts[e.Kind]++
 	}
 	var b strings.Builder
-	b.WriteString(":shield: *Nexogent scan summary*\n")
+	b.WriteString(":shield: *CodeSentinal. scan summary*\n")
 	for _, k := range []string{"new_critical", "new_high", "regressed", "new_path", "risk_expiring", "scan_failed"} {
 		if counts[k] > 0 {
 			b.WriteString(fmt.Sprintf("• %s: %d\n", title(k), counts[k]))

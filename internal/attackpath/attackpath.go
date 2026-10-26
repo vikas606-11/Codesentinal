@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/sriramg-aivar/nexogent/internal/types"
+	"github.com/sriramg-aivar/CodeSentinal./internal/types"
 )
 
 // Facts is the discovered input the rules reason over.

@@ -4,8 +4,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/sriramg-aivar/nexogent/internal/attackpath"
-	"github.com/sriramg-aivar/nexogent/internal/types"
+	"github.com/sriramg-aivar/CodeSentinal./internal/attackpath"
+	"github.com/sriramg-aivar/CodeSentinal./internal/types"
 )
 
 func osGetenv(k string) string { return os.Getenv(k) }

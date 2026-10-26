@@ -1,4 +1,4 @@
-module github.com/sriramg-aivar/nexogent
+module github.com/sriramg-aivar/CodeSentinal.
 
 go 1.27.1
 

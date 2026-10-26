@@ -1,4 +1,4 @@
-// Package types defines the core domain model shared across Nexogent.
+// Package types defines the core domain model shared across CodeSentinal..
 package types
 
 import "time"

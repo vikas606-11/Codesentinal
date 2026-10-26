@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/sriramg-aivar/nexogent/internal/types"
+	"github.com/sriramg-aivar/CodeSentinal./internal/types"
 )
 
 func mk(fp string, sev types.Severity, status types.Status, sources ...string) types.Finding {

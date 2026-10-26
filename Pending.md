@@ -1,4 +1,4 @@
-# Nexogent — Pending
+# CodeSentinal. — Pending
 
 The **free build is finished and deployed** to our account (`eks-lab`). Everything
 below is **not** part of the free build. Nothing here is started yet — do not touch
@@ -9,7 +9,7 @@ the paid build until we explicitly move to it.
 ## 1. Paid build (next phase — client-account edition)
 Adds the AWS-native security services as optional **read-only** sources, behind the
 same `Finding` model, off by default. Full spec: `docs/paid/Sow-paid-build.md` and
-Part B of `docs/free/Nexogent-Build-Spec.md`.
+Part B of `docs/free/CodeSentinal.-Build-Spec.md`.
 
 - **P1 — Security Hub reader**: pull aggregated findings (ASFF), map controls to our
   canonical keys, service classification from resource type.
@@ -23,9 +23,9 @@ Part B of `docs/free/Nexogent-Build-Spec.md`.
 - **P6 — Attack paths enriched with native signals**: a path that also has an
   exploitable CVE or an active threat ranks higher.
 - **P7 — Live integration page**: show each service's real state (enabled / readable
-  / permission-missing) with a cost note. Toggles write only to Nexogent settings;
+  / permission-missing) with a cost note. Toggles write only to CodeSentinal. settings;
   **no** enable/create/update call to those AWS services, ever.
-- New read-only IAM policy `deploy/iam/nexogent-native-readers-policy.json`, attached
+- New read-only IAM policy `deploy/iam/CodeSentinal.-native-readers-policy.json`, attached
   only when `nativeReaders.enabled=true`.
 
 > In the free build these three appear in Settings as **disabled toggles** with a

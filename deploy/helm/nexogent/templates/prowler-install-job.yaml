@@ -4,11 +4,11 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: nexogent-prowler-initial-{{ .Release.Revision }}
+  name: CodeSentinal.-prowler-initial-{{ .Release.Revision }}
   namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "nexogent.labels" . | nindent 4 }}
-    app.kubernetes.io/name: nexogent
+    {{- include "CodeSentinal..labels" . | nindent 4 }}
+    app.kubernetes.io/name: CodeSentinal.
     app.kubernetes.io/component: prowler
   annotations:
     "helm.sh/hook": post-install,post-upgrade
@@ -20,7 +20,7 @@ spec:
   template:
     metadata:
       labels:
-        {{- include "nexogent.componentSelector" (dict "root" . "component" "prowler") | nindent 8 }}
+        {{- include "CodeSentinal..componentSelector" (dict "root" . "component" "prowler") | nindent 8 }}
     spec:
-      {{- include "nexogent.prowlerPodSpec" . | nindent 6 }}
+      {{- include "CodeSentinal..prowlerPodSpec" . | nindent 6 }}
 {{- end -}}

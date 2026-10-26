@@ -5,7 +5,7 @@ package ranking
 import (
 	"sort"
 
-	"github.com/sriramg-aivar/nexogent/internal/types"
+	"github.com/sriramg-aivar/CodeSentinal./internal/types"
 )
 
 // Weights for the four rubric factors (sum = 1.0).

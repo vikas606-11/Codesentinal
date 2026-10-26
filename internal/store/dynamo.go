@@ -12,7 +12,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	ddbtypes "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 
-	"github.com/sriramg-aivar/nexogent/internal/types"
+	"github.com/sriramg-aivar/CodeSentinal./internal/types"
 )
 
 // Dynamo persists reviews to a single DynamoDB table.

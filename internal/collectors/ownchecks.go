@@ -18,9 +18,9 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/rds"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 
-	"github.com/sriramg-aivar/nexogent/internal/fingerprint"
-	"github.com/sriramg-aivar/nexogent/internal/ranking"
-	"github.com/sriramg-aivar/nexogent/internal/types"
+	"github.com/sriramg-aivar/CodeSentinal./internal/fingerprint"
+	"github.com/sriramg-aivar/CodeSentinal./internal/ranking"
+	"github.com/sriramg-aivar/CodeSentinal./internal/types"
 )
 
 // OwnChecks runs free, read-only AWS config checks. Nothing is modified.

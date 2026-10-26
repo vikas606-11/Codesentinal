@@ -1,27 +1,27 @@
-# Nexogent — Statement of Work
+# CodeSentinal. — Statement of Work
 
 **Paid Build (v2): everything in the Free Build plus Security Hub, GuardDuty, Inspector and IAM Access Analyzer**
 
 | | |
 |---|---|
-| **Product** | Nexogent, an AWS SecOps agent for managed service providers (MSPs) |
+| **Product** | CodeSentinal., an AWS SecOps agent for managed service providers (MSPs) |
 | **Edition** | **Paid build.** The full Free Build **plus** read-only readers for Security Hub, GuardDuty, Inspector and IAM Access Analyzer |
 | **Supplier** | [Supplier name] |
 | **Customer** | [MSP name] |
 | **Delivery model** | One private deployment per managed client, inside that client's own AWS account. Not a shared SaaS |
 | **Account scope** | One AWS account per deployment. AWS Organizations and multi-account views are out of scope and planned for a later release |
 | **Document status** | Draft v2.0 for review, 24-Oct-2026 |
-| **Companion documents** | `Sow-free-build.md` (the base build; this document includes all of it), `Nexogent-Build-Spec.md` (engineering instructions, Part A free and Part B paid) |
+| **Companion documents** | `Sow-free-build.md` (the base build; this document includes all of it), `CodeSentinal.-Build-Spec.md` (engineering instructions, Part A free and Part B paid) |
 
 ## 1. Summary
 
-Nexogent is installed into a managed client's AWS account. It discovers every resource across all enabled regions, audits it with its own read-only checks and the open-source Prowler scanner, ranks findings by real risk, and keeps a history so it can say what is new, what was fixed, and what has been open for how long. It then produces what an MSP hands to a client: a ranked fix list, a risk register, a branded posture report, and alerts.
+CodeSentinal. is installed into a managed client's AWS account. It discovers every resource across all enabled regions, audits it with its own read-only checks and the open-source Prowler scanner, ranks findings by real risk, and keeps a history so it can say what is new, what was fixed, and what has been open for how long. It then produces what an MSP hands to a client: a ranked fix list, a risk register, a branded posture report, and alerts.
 
-This **paid build** adds the AWS-native security services as extra, optional detection sources. When the client already runs Security Hub, GuardDuty, Inspector or IAM Access Analyzer, Nexogent reads their findings, merges them with its own into one queue, and shows what none of the free sources can: **active threats** and **known vulnerabilities (CVEs) on workloads**.
+This **paid build** adds the AWS-native security services as extra, optional detection sources. When the client already runs Security Hub, GuardDuty, Inspector or IAM Access Analyzer, CodeSentinal. reads their findings, merges them with its own into one queue, and shows what none of the free sources can: **active threats** and **known vulnerabilities (CVEs) on workloads**.
 
-Nexogent stays **read-only and recommend-only**. It reads findings from these services; it never enables them, changes them, suppresses a finding in them, or remediates anything. The client switches those AWS services on (and pays AWS for them); Nexogent only reads.
+CodeSentinal. stays **read-only and recommend-only**. It reads findings from these services; it never enables them, changes them, suppresses a finding in them, or remediates anything. The client switches those AWS services on (and pays AWS for them); CodeSentinal. only reads.
 
-Nexogent does not depend on those services. If a client has none of them, the paid build behaves exactly like the free build for that account.
+CodeSentinal. does not depend on those services. If a client has none of them, the paid build behaves exactly like the free build for that account.
 
 ### 1.1 What this build adds to the current product
 
@@ -33,9 +33,9 @@ All of the Free Build (stable finding lifecycle, deduplication, accepted-risk re
 | P2 | GuardDuty reader and active-threat panel | Answers "is something happening right now?", which configuration scanning cannot |
 | P3 | Inspector reader | CVEs on EC2, container images and Lambda, with fix versions and exploit flags |
 | P4 | IAM Access Analyzer reader | Resources shared outside the account |
-| P5 | Cross-source deduplication including native control IDs | One finding even when Prowler, Security Hub and Nexogent all report it |
+| P5 | Cross-source deduplication including native control IDs | One finding even when Prowler, Security Hub and CodeSentinal. all report it |
 | P6 | Attack paths enriched with native signals | A path that also has an exploitable CVE or an active threat is ranked higher |
-| P7 | Live integration page | Shows whether each service is enabled, whether Nexogent can read it, and what it costs |
+| P7 | Live integration page | Shows whether each service is enabled, whether CodeSentinal. can read it, and what it costs |
 
 ### 1.2 How this edition differs from the free build
 
@@ -46,13 +46,13 @@ All of the Free Build (stable finding lifecycle, deduplication, accepted-risk re
 | Active threat view | Not available | Yes (GuardDuty) |
 | Vulnerability (CVE) view | Not available | Yes (Inspector) |
 | Native service toggles | Shown, disabled | Live; read-only; off by default |
-| AWS cost to the client | Compute and storage for Nexogent only | The same, plus the client's own charges for each native service they enable |
+| AWS cost to the client | Compute and storage for CodeSentinal. only | The same, plus the client's own charges for each native service they enable |
 
 ## 2. Who it is for and when it is used
 
 ### 2.1 Users
 
-| Who | What they do with Nexogent |
+| Who | What they do with CodeSentinal. |
 |----------------------------|------------------------------------------------------------------------|
 | **MSP security or cloud lead** (the `superadmin` in this release) | Runs scans, reviews findings, accepts risks, approves reports, sets alerts |
 | **MSP engineer** | Works through the fix list, applies the Terraform or CLI change through the MSP's normal change process |
@@ -103,7 +103,7 @@ v1 is deployed and working: multi-region discovery, own checks, Prowler ingestio
 - **Code ranks.** A weighted rubric (severity, exposure, reachability, resource criticality) produces a 0 to 100 score for each finding. Weights are editable in Settings (F8).
 - **Text is written separately.** Explanations, fix guidance and report narrative come from built-in templates. Amazon Bedrock may improve the wording when it is available. Bedrock is never a source of a finding and never changes a number.
 - **Nothing depends on Bedrock.** Every feature, including reports, works with the offline templates.
-- **Paid build: native sources.** Where the client has enabled them, Security Hub, GuardDuty, Inspector and IAM Access Analyzer are additional detection sources, read-only. Their findings go through the same fingerprint, deduplication, lifecycle and ranking as every other source. Nexogent adds the ranking, the merging, the history, the register, the attack paths and the reports on top; it does not depend on any of them.
+- **Paid build: native sources.** Where the client has enabled them, Security Hub, GuardDuty, Inspector and IAM Access Analyzer are additional detection sources, read-only. Their findings go through the same fingerprint, deduplication, lifecycle and ranking as every other source. CodeSentinal. adds the ranking, the merging, the history, the register, the attack paths and the reports on top; it does not depend on any of them.
 
 ## 4. Scope of work: features
 
@@ -166,16 +166,16 @@ These are additional **read-only readers**. Each can be switched on or off in Se
 | **P4** | **IAM Access Analyzer reader** | Reads active external-access findings (for example a bucket or role shared outside the account) | A public-access finding maps to exposure 1.0 and appears under the right service |
 | **P5** | **Cross-source deduplication with native controls** | A data file maps native control IDs to the same canonical keys used by own checks and Prowler, so one problem is one finding even when three tools report it. The file can be edited without a code change | A sample open-port problem reported by own check, Prowler and Security Hub appears once with three sources |
 | **P6** | **Enriched attack paths** | A path whose instance has a critical CVE with a known exploit, or an active GuardDuty finding, is raised in severity and labelled with the signal | A sample path gains the label and a higher rank when the signal is present |
-| **P7** | **Live integration page** | For each native service: **not enabled in this account**, **enabled and reading**, **enabled but switched off here**, or **permission missing**. Shows a plain cost note and a read-only enablement guide for the client's administrator. The toggle controls only whether Nexogent reads the service | The page reports the correct state for each service in a test account; no toggle ever calls an AWS write action |
+| **P7** | **Live integration page** | For each native service: **not enabled in this account**, **enabled and reading**, **enabled but switched off here**, or **permission missing**. Shows a plain cost note and a read-only enablement guide for the client's administrator. The toggle controls only whether CodeSentinal. reads the service | The page reports the correct state for each service in a test account; no toggle ever calls an AWS write action |
 
 ### 4.7 Paid build: cost and consent
 
-The client, not the supplier, enables each native service and pays AWS for it. Nexogent shows a cost notice next to each toggle and recommends a billing alarm. Any free trial period for these services is set by AWS and may change. Nexogent never enables a service on the client's behalf, because enabling is a write action.
+The client, not the supplier, enables each native service and pays AWS for it. CodeSentinal. shows a cost notice next to each toggle and recommends a billing alarm. Any free trial period for these services is set by AWS and may change. CodeSentinal. never enables a service on the client's behalf, because enabling is a write action.
 
 ## 5. Out of scope
 
-- Any change, deletion, restart or remediation of client AWS resources. Nexogent is read-only and recommend-only. Fix-as-code produces text for a human to review.
-- **Enabling, configuring, suppressing or archiving anything in Security Hub, GuardDuty, Inspector or Access Analyzer.** Nexogent only reads them. The client enables them.
+- Any change, deletion, restart or remediation of client AWS resources. CodeSentinal. is read-only and recommend-only. Fix-as-code produces text for a human to review.
+- **Enabling, configuring, suppressing or archiving anything in Security Hub, GuardDuty, Inspector or Access Analyzer.** CodeSentinal. only reads them. The client enables them.
 - Reading findings from other native services not named in section 4.6 (for example Macie, Detective, Config rules).
 - AWS Organizations, multi-account and delegated-administrator views, including organization-wide Security Hub or GuardDuty aggregation across accounts. Planned for a later release.
 - Named users, roles and single sign-on. This release has one `superadmin` role. Cognito or OIDC is planned.
@@ -191,14 +191,14 @@ The client, not the supplier, enables each native service and pays AWS for it. N
 
 | Workload | Kind | Role |
 |--------------------|--------------------|------------------------------------------------------------|
-| `nexogent-backend` | Deployment + Service | Go agent and API: discovery, own checks, scan ingestion, lifecycle, ranking, attack paths, reports, alerts. Runs under a read-only IAM role (IRSA) |
-| `nexogent-frontend` | Deployment + Service | React portal served by unprivileged Nginx, which proxies `/api` to the backend and sets security headers |
-| `nexogent-prowler` | CronJob (plus on-demand Jobs) | Prowler scanner. Writes results to the shared volume. On-demand Jobs are created by the backend from this CronJob |
+| `CodeSentinal.-backend` | Deployment + Service | Go agent and API: discovery, own checks, scan ingestion, lifecycle, ranking, attack paths, reports, alerts. Runs under a read-only IAM role (IRSA) |
+| `CodeSentinal.-frontend` | Deployment + Service | React portal served by unprivileged Nginx, which proxies `/api` to the backend and sets security headers |
+| `CodeSentinal.-prowler` | CronJob (plus on-demand Jobs) | Prowler scanner. Writes results to the shared volume. On-demand Jobs are created by the backend from this CronJob |
 | Results volume | PVC | Shared scan output. Scan pods are scheduled on the same node as the backend |
 | Ingress | AWS ALB | `/` to frontend, `/api` and `/health` to backend. HTTPS with an ACM certificate when configured; optional source IP allow-list |
 | Optional scanners | CronJobs | ScoutSuite and cloudsplaining, off by default |
 
-New in this build: a namespace-scoped Kubernetes role that lets the backend read the Prowler CronJob and create, get and list Jobs. It grants nothing on AWS and nothing outside the `nexogent` namespace.
+New in this build: a namespace-scoped Kubernetes role that lets the backend read the Prowler CronJob and create, get and list Jobs. It grants nothing on AWS and nothing outside the `CodeSentinal.` namespace.
 
 ### 6.2 Data
 
@@ -219,7 +219,7 @@ Without a table the backend falls back to memory, for demos and local mode only.
 
 ### 6.3 Interfaces
 
-The API is versioned under `/api/v1`. Existing endpoints keep their shape; new endpoints are additive. The summary list is in `Nexogent-Build-Spec.md`. All endpoints except health, login and auth status require a signed session.
+The API is versioned under `/api/v1`. Existing endpoints keep their shape; new endpoints are additive. The summary list is in `CodeSentinal.-Build-Spec.md`. All endpoints except health, login and auth status require a signed session.
 
 ### 6.4 Modes
 
@@ -249,20 +249,20 @@ The API is versioned under `/api/v1`. Existing endpoints keep their shape; new e
 
 ## 7. Security and safety principles
 
-- **Read-only on the client account.** The IAM role allows `Describe`, `Get` and `List` actions only. The single exception is read and write on Nexogent's own DynamoDB table.
+- **Read-only on the client account.** The IAM role allows `Describe`, `Get` and `List` actions only. The single exception is read and write on CodeSentinal.'s own DynamoDB table.
 - **No static AWS keys in the cluster.** Access is by IAM Roles for Service Accounts (IRSA). In local mode the engineer's own profile is mounted read-only and is not copied into any image.
 - **Portal not publicly readable.** Sign-in is required for every data endpoint. Sessions are signed, short-lived and never accepted in a URL. Logins are throttled. HTTPS is used when a certificate is configured, and an IP allow-list is available.
-- **Recommend-only.** Fix-as-code is text. It is labelled "review before applying" and includes what could break. Nexogent never runs it.
+- **Recommend-only.** Fix-as-code is text. It is labelled "review before applying" and includes what could break. CodeSentinal. never runs it.
 - **Secrets.** The superadmin password, the session secret and the Slack webhook are held in Kubernetes Secrets, never in the repository, and never returned by the API after they are saved.
 - **Outbound calls are limited.** The only outbound destinations are AWS APIs, Amazon Bedrock (optional) and the configured Slack webhook, which must be an HTTPS Slack address.
 - **Reports contain account findings.** They are generated on demand, stored only in the client's DynamoDB table, and downloaded only by an authenticated user. Bedrock, when used, receives aggregated counts and finding titles, not account IDs or resource names.
-- **Handover.** The client keeps full administrator rights. The supplier retains no standing access. `stop.sh --purge` removes everything Nexogent created.
+- **Handover.** The client keeps full administrator rights. The supplier retains no standing access. `stop.sh --purge` removes everything CodeSentinal. created.
 - **Native readers are read-only.** The extra IAM statement for the paid build lists read and list actions for Security Hub, GuardDuty, Inspector and Access Analyzer only. It is a separate policy so a client can review it on its own, and it is attached only when the client turns these sources on.
-- **Nexogent never changes the state of a native finding.** It does not archive, suppress, resolve or update workflow status in any of those services.
+- **CodeSentinal. never changes the state of a native finding.** It does not archive, suppress, resolve or update workflow status in any of those services.
 
 ## 8. Deliverables
 
-1. Nexogent v2 source: Go backend, React portal, Helm chart, scripts, on a `v2-msp` branch.
+1. CodeSentinal. v2 source: Go backend, React portal, Helm chart, scripts, on a `v2-msp` branch.
 2. Features F1 to F20 (sections 4.1 to 4.5) and P1 to P7 (section 4.6).
 3. Unit tests for all pure logic (lifecycle, deduplication, attack paths, fix templates, report rendering, auth tokens, alert suppression, and the normalisation of every native finding type from recorded samples) and a documented verification checklist for the parts that call AWS.
 4. Updated Helm chart: HTTPS and IP allow-list values, session secret, Kubernetes role for deep scans, node co-location for scan pods, and the optional native-reader IAM policy.
@@ -323,7 +323,7 @@ The build is accepted when every criterion below passes. "Fixture" means a recor
 | AC-23 | `docker compose up` starts the portal from a fresh checkout | F18 | Manual check |
 | AC-24 | In demo mode every page shows the demo banner, no AWS call is made, and no credential is needed | F19 | Automated test plus manual check |
 | AC-25 | A new engineer deploys from the documents alone | F20 | Walkthrough |
-| AC-26 | No API write or modify call is made to any client resource; the IAM policy has no write action except on the Nexogent table | Safety | Policy review and a search of the code |
+| AC-26 | No API write or modify call is made to any client resource; the IAM policy has no write action except on the CodeSentinal. table | Safety | Policy review and a search of the code |
 | AC-27 | The word "Bedrock" never appears as a source on any finding; every report number matches the underlying data | Detection model | Automated test |
 | AC-28 | All features work with Bedrock unavailable | Detection model | Run the test suite and a manual walkthrough with Bedrock off |
 | AC-29 | The build compiles, passes `go vet` and all tests, and the portal builds without warnings | All | CI run |
@@ -336,7 +336,7 @@ The build is accepted when every criterion below passes. "Fixture" means a recor
 | AC-P7 | The integration page shows the correct state for each service in a test account, and no toggle calls an AWS write action | P7 | Live check; code search |
 | AC-P8 | A native reader that errors reports a source error and does not mark any of its findings fixed | P1 to P4 | Automated test |
 | AC-P9 | With every native reader switched off, results are identical to the free build | P1 to P7 | Automated test |
-| AC-P10 | Live: in an account with the native services enabled, the number of findings Nexogent shows for each service equals the number the service reports as active, within the recorded read time | P1 to P4 | Live check |
+| AC-P10 | Live: in an account with the native services enabled, the number of findings CodeSentinal. shows for each service equals the number the service reports as active, within the recorded read time | P1 to P4 | Live check |
 
 ## 11. Assumptions, dependencies and risks
 
@@ -348,7 +348,7 @@ The build is accepted when every criterion below passes. "Fixture" means a recor
 - Amazon Bedrock is optional. It needs model access and a valid payment method on the account. Without it every feature still works with built-in text.
 - A Slack incoming webhook is supplied by the MSP if alerts are wanted.
 - Engineering estimates assume one engineer and access to a test AWS account with real resources.
-- **For the native readers:** the client enables each service they want read. Security Hub, GuardDuty and Inspector are paid AWS services; any free trial is set by AWS and may change, so the client confirms current pricing before enabling. Nexogent never enables them.
+- **For the native readers:** the client enables each service they want read. Security Hub, GuardDuty and Inspector are paid AWS services; any free trial is set by AWS and may change, so the client confirms current pricing before enabling. CodeSentinal. never enables them.
 - **Acceptance of the native readers needs an AWS account where those services are enabled.** A free-tier account that cannot enable them can accept AC-01 to AC-29 and AC-P1 to AC-P9, but not AC-P10 (live) or the live part of AC-P7.
 
 ### 11.2 Dependencies
@@ -375,7 +375,7 @@ The build is accepted when every criterion below passes. "Fixture" means a recor
 | Fix snippets applied without review | Outage | Every snippet states what could break and is labelled for review |
 | Several backend replicas run scheduled scans at once | Duplicate scans and alerts | Scheduler lease in DynamoDB |
 | **Native finding formats change** (Security Hub now has more than one finding format) | A reader returns wrong or empty data | Put each reader behind an interface; keep recorded samples; confirm against current AWS documentation in phase 8; add a second reader if needed |
-| **Client enables a paid service and is surprised by the bill** | Client dissatisfaction | Cost notice beside every toggle; recommend a billing alarm; Nexogent never enables a service |
+| **Client enables a paid service and is surprised by the bill** | Client dissatisfaction | Cost notice beside every toggle; recommend a billing alarm; CodeSentinal. never enables a service |
 | **Large numbers of native findings** | Slow scans, large reviews | Page through results with a cap and a warning; chunked storage |
 | **Native readers cannot be tested on a free-tier account** | Defects found late | Recorded samples for every finding type; AC-P10 run in an account with the services enabled |
 

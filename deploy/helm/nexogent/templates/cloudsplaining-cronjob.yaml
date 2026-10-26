@@ -5,11 +5,11 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: nexogent-cloudsplaining
+  name: CodeSentinal.-cloudsplaining
   namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "nexogent.labels" . | nindent 4 }}
-    app.kubernetes.io/name: nexogent
+    {{- include "CodeSentinal..labels" . | nindent 4 }}
+    app.kubernetes.io/name: CodeSentinal.
     app.kubernetes.io/component: cloudsplaining
 spec:
   schedule: {{ .Values.cloudsplaining.schedule | quote }}
@@ -22,9 +22,9 @@ spec:
       template:
         metadata:
           labels:
-            {{- include "nexogent.componentSelector" (dict "root" . "component" "cloudsplaining") | nindent 12 }}
+            {{- include "CodeSentinal..componentSelector" (dict "root" . "component" "cloudsplaining") | nindent 12 }}
         spec:
-          serviceAccountName: {{ include "nexogent.serviceAccountName" . }}
+          serviceAccountName: {{ include "CodeSentinal..serviceAccountName" . }}
           restartPolicy: Never
           securityContext:
             {{- toYaml .Values.podSecurityContext | nindent 12 }}
@@ -62,5 +62,5 @@ spec:
           volumes:
             - name: results
               persistentVolumeClaim:
-                claimName: nexogent-prowler-results
+                claimName: CodeSentinal.-prowler-results
 {{- end -}}

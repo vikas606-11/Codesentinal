@@ -7,8 +7,8 @@ import (
 	"sort"
 	"time"
 
-	"github.com/sriramg-aivar/nexogent/internal/fixes"
-	"github.com/sriramg-aivar/nexogent/internal/types"
+	"github.com/sriramg-aivar/CodeSentinal./internal/fixes"
+	"github.com/sriramg-aivar/CodeSentinal./internal/types"
 )
 
 // Data is everything a renderer needs. Build it once and snapshot it so an

@@ -18,9 +18,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/sriramg-aivar/nexogent/internal/fingerprint"
-	"github.com/sriramg-aivar/nexogent/internal/ranking"
-	"github.com/sriramg-aivar/nexogent/internal/types"
+	"github.com/sriramg-aivar/CodeSentinal./internal/fingerprint"
+	"github.com/sriramg-aivar/CodeSentinal./internal/ranking"
+	"github.com/sriramg-aivar/CodeSentinal./internal/types"
 )
 
 // CloudsplainingCollector reads cloudsplaining JSON results from a directory.

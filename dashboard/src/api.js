@@ -1,7 +1,7 @@
-// API client for the Nexogent v2 portal. Same-origin via Nginx. Carries the
+// API client for the CodeSentinal. v2 portal. Same-origin via Nginx. Carries the
 // signed superadmin session token on every call (Authorization header only).
 
-const TOKEN_KEY = 'nexogent_token'
+const TOKEN_KEY = 'CodeSentinal._token'
 export function getToken() { try { return localStorage.getItem(TOKEN_KEY) || '' } catch { return '' } }
 export function setToken(t) { try { localStorage.setItem(TOKEN_KEY, t) } catch {} }
 export function clearToken() { try { localStorage.removeItem(TOKEN_KEY) } catch {} }

@@ -1,4 +1,4 @@
-# Nexogent — Deployment & Architecture (Free Build)
+# CodeSentinal. — Deployment & Architecture (Free Build)
 
 How the free build is put together and how it runs inside our own AWS account
 (`eks-lab`, us-east-1). This is the env we build and test on before the paid build
@@ -24,7 +24,7 @@ goes to a client account.
                    │  /api → backend  │
                    └────────┬─────────┘
                             │
-   ┌────────────────────────┼──────────── EKS: eks-lab (namespace nexogent) ────────┐
+   ┌────────────────────────┼──────────── EKS: eks-lab (namespace CodeSentinal.) ────────┐
    │                        │                                                       │
    │   ┌──────────────┐     │     ┌────────────────────────────────┐                │
    │   │  frontend    │◄────┴────►│   backend (Go API/agent)       │                │
@@ -48,18 +48,18 @@ goes to a client account.
                                                                  └───────────────────┘
 ```
 
-A deploy creates these objects in the `nexogent` namespace:
+A deploy creates these objects in the `CodeSentinal.` namespace:
 
 | Object | Kind | Role |
 |---|---|---|
-| `nexogent-backend` | Deployment + Service | the Go agent/API |
-| `nexogent-frontend` | Deployment + Service | the React portal (Nginx) |
-| `nexogent-prowler` | CronJob (+ on-demand Jobs) | the Prowler scanner |
-| `nexogent-prowler-results` | PVC (EBS) | shared scanner output |
-| `nexogent` | Ingress (ALB) | public entry: `/` → frontend, `/api`+`/health` → backend |
-| `nexogent-auth` | Secret | superadmin password + session secret (+ optional Slack webhook) |
-| `nexogent-sa` | ServiceAccount (IRSA) | the read-only AWS role |
-| `nexogent-deepscan` | Role + RoleBinding | lets the backend run on-demand Prowler Jobs |
+| `CodeSentinal.-backend` | Deployment + Service | the Go agent/API |
+| `CodeSentinal.-frontend` | Deployment + Service | the React portal (Nginx) |
+| `CodeSentinal.-prowler` | CronJob (+ on-demand Jobs) | the Prowler scanner |
+| `CodeSentinal.-prowler-results` | PVC (EBS) | shared scanner output |
+| `CodeSentinal.` | Ingress (ALB) | public entry: `/` → frontend, `/api`+`/health` → backend |
+| `CodeSentinal.-auth` | Secret | superadmin password + session secret (+ optional Slack webhook) |
+| `CodeSentinal.-sa` | ServiceAccount (IRSA) | the read-only AWS role |
+| `CodeSentinal.-deepscan` | Role + RoleBinding | lets the backend run on-demand Prowler Jobs |
 
 ScoutSuite and cloudsplaining CronJobs are shipped but disabled by default.
 
@@ -67,7 +67,7 @@ ScoutSuite and cloudsplaining CronJobs are shipped but disabled by default.
 
 ## 2. The three microservices and how they connect
 
-### Backend (`nexogent-backend`) — pure Go
+### Backend (`CodeSentinal.-backend`) — pure Go
 The agent and the HTTP API. It:
 - **discovers** every resource across all enabled regions (read-only AWS SDK),
 - runs its **own read-only checks** and **ingests** the scanners' results,
@@ -81,14 +81,14 @@ The agent and the HTTP API. It:
 It assumes the read-only IAM role via **IRSA** — no static keys. The only thing it
 writes is its own DynamoDB table.
 
-### Frontend (`nexogent-frontend`) — React + Nginx
+### Frontend (`CodeSentinal.-frontend`) — React + Nginx
 The risk-first portal (Overview, Findings, Attack paths, Inventory, Risks, Reports,
 Activity, Settings). Nginx serves the built SPA and **proxies** `/api` and `/health`
 to the backend Service, and sets security headers (CSP, nosniff, frame-deny). The
 browser talks only to the frontend origin; the frontend reaches the backend over the
-in-cluster Service DNS (`nexogent-backend:8080`).
+in-cluster Service DNS (`CodeSentinal.-backend:8080`).
 
-### Scanners (`nexogent-prowler`, optional ScoutSuite/cloudsplaining)
+### Scanners (`CodeSentinal.-prowler`, optional ScoutSuite/cloudsplaining)
 Open-source scanners run as **Kubernetes Jobs/CronJobs** under the same read-only
 IRSA role. They write results to the **shared EBS PVC**; the backend reads that
 volume and normalises everything into one `Finding` model. On-demand **deep scans**
@@ -96,7 +96,7 @@ are started by the backend creating a Job from the CronJob (the namespace-scoped
 RBAC Role grants exactly that — nothing on AWS, nothing outside the namespace).
 
 ### Data store (DynamoDB)
-One on-demand table (`nexogent-reviews`) holds reviews, history/trend, the
+One on-demand table (`CodeSentinal.-reviews`) holds reviews, history/trend, the
 accepted-risk register, remediation plans, report snapshots, the audit log,
 settings, and the scheduler lease. Large reviews are chunked to stay under the
 item-size limit. Review history is what lets the product show "what's new, what was
@@ -117,10 +117,10 @@ unavailable, built-in templates are used and nothing breaks.
   `nginxinc/nginx-unprivileged` (runs as uid 101) with writable `emptyDir` mounts
   for the Nginx cache/pid/conf dirs. Config is templated with `envsubst` at start so
   the backend Service name is injected.
-- Both images are pushed to **private ECR** repos (`nexogent`, `nexogent-frontend`),
+- Both images are pushed to **private ECR** repos (`CodeSentinal.`, `CodeSentinal.-frontend`),
   one per image, and tagged `latest` with `imagePullPolicy: Always` so a redeploy
   always pulls the new image.
-- The **Helm chart** (`deploy/helm/nexogent`) renders every object above from
+- The **Helm chart** (`deploy/helm/CodeSentinal.`) renders every object above from
   `values.yaml`. The session secret is generated by the chart and **reused on
   upgrade** (via `helm lookup`) so sessions survive restarts and multiple replicas.
 
@@ -128,11 +128,11 @@ unavailable, built-in templates are used and nothing breaks.
 
 ## 4. Access & safety model
 
-- **IRSA, read-only.** The `NexogentReadOnly` IAM policy allows only
+- **IRSA, read-only.** The `CodeSentinal.ReadOnly` IAM policy allows only
   `Describe*/Get*/List*` across the audited services (EC2, S3, IAM, Lambda, RDS,
   DynamoDB, EKS, CloudTrail, KMS, CloudWatch, Logs, SNS, Access Analyzer) plus
   optional `bedrock:InvokeModel`. The one read/write grant is scoped to the single
-  `nexogent-reviews` DynamoDB table — never client resources.
+  `CodeSentinal.-reviews` DynamoDB table — never client resources.
 - **No static keys** anywhere in the cluster.
 - **Portal auth.** Every data endpoint requires a signed superadmin session token
   (no `?token=` in URLs); logins are throttled; security headers + CSP are set.

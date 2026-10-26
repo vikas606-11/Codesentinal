@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/sriramg-aivar/nexogent/internal/types"
+	"github.com/sriramg-aivar/CodeSentinal./internal/types"
 )
 
 // RenderMarkdown renders the report as Markdown. All numbers come from Data.

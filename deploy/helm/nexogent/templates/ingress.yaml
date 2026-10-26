@@ -2,11 +2,11 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: nexogent
+  name: CodeSentinal.
   namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "nexogent.labels" . | nindent 4 }}
-    app.kubernetes.io/name: nexogent
+    {{- include "CodeSentinal..labels" . | nindent 4 }}
+    app.kubernetes.io/name: CodeSentinal.
   annotations:
     {{- with .Values.ingress.annotations }}
     {{- toYaml . | nindent 4 }}
@@ -37,14 +37,14 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: nexogent-backend
+                name: CodeSentinal.-backend
                 port:
                   number: {{ .Values.backend.service.port }}
           - path: /health
             pathType: Prefix
             backend:
               service:
-                name: nexogent-backend
+                name: CodeSentinal.-backend
                 port:
                   number: {{ .Values.backend.service.port }}
           # Everything else goes to the frontend (SPA).
@@ -52,7 +52,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: nexogent-frontend
+                name: CodeSentinal.-frontend
                 port:
                   number: {{ .Values.frontend.service.port }}
 {{- end -}}

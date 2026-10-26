@@ -7,7 +7,7 @@ import (
 	"sort"
 	"time"
 
-	"github.com/sriramg-aivar/nexogent/internal/types"
+	"github.com/sriramg-aivar/CodeSentinal./internal/types"
 )
 
 // Scope limits which previous findings a scan may mark fixed. An empty Service

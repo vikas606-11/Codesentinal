@@ -1,6 +1,6 @@
-# Nexogent v2: Build Specification (give this file to your AI)
+# CodeSentinal. v2: Build Specification (give this file to your AI)
 
-You are upgrading an existing product called **Nexogent**, an AWS security posture agent that an MSP deploys into one managed client's AWS account. Read this whole file before writing code. It is the single source of truth for the upgrade. The scope documents are `Sow-free-build.md` (Part A below) and `Sow-paid-build.md` (Part A plus Part B).
+You are upgrading an existing product called **CodeSentinal.**, an AWS security posture agent that an MSP deploys into one managed client's AWS account. Read this whole file before writing code. It is the single source of truth for the upgrade. The scope documents are `Sow-free-build.md` (Part A below) and `Sow-paid-build.md` (Part A plus Part B).
 
 **Work order:** do Part A phase by phase. After each phase run the verification commands in section 12 and fix everything before starting the next phase. Do Part B only when told to.
 
@@ -8,7 +8,7 @@ You are upgrading an existing product called **Nexogent**, an AWS security postu
 
 ## 0. Ground rules (do not break these)
 
-1. **Read-only on the client account.** No AWS write, update, delete, enable or suppress call, ever. The only AWS write allowed is to Nexogent's own DynamoDB table. Fix-as-code is **text**; the product never runs it.
+1. **Read-only on the client account.** No AWS write, update, delete, enable or suppress call, ever. The only AWS write allowed is to CodeSentinal.'s own DynamoDB table. Fix-as-code is **text**; the product never runs it.
 2. **Pure Go backend.** No Python, no cgo, no new language runtime. Prefer the Go standard library. Add a third-party Go module only when there is no reasonable standard-library way, and say why in the commit message. The only AWS SDK service clients already in `go.mod` are the ones the code uses today; add more only where this spec asks.
 3. **Detection model.** Own checks, Prowler and the other scanners **find**. Code in `internal/ranking` **ranks**. Templates (and optionally Bedrock) **write words**. Bedrock must never create a finding, change a number, or be a finding's source. **Every feature must work with Bedrock unavailable.**
 4. **No vendor or customer names in the product.** Do not write the names of the supplier company, any customer, or any reference programme in code, docs, UI text, test data or comments. Use "the MSP", "the client", "the supplier".
@@ -26,7 +26,7 @@ You are upgrading an existing product called **Nexogent**, an AWS security postu
 Repo layout (the Go module path is whatever `go.mod` says; do not change it):
 
 ```
-cmd/nexogent/main.go            server entry, env config, in-process scheduler
+cmd/CodeSentinal./main.go            server entry, env config, in-process scheduler
 internal/types/types.go         Resource, Finding, RiskFactors, PostureReview, Explanation, ServiceInfo, Integration
 internal/discovery/discovery.go multi-region inventory (ec2, lambda, rds, dynamodb, eks regional; iam, s3 global)
 internal/collectors/            ownchecks.go, prowler.go, scoutsuite.go, cloudsplaining.go
@@ -36,7 +36,7 @@ internal/store/                 Store interface, Memory, Dynamo (pk/sk table)
 internal/auth/auth.go           password gate, in-memory tokens
 internal/api/server.go          HTTP API, RunReview, RunAudit, merge logic
 dashboard/                      React 18 + Vite, hash router, views/*.jsx, styles.css (dark, emoji icons)
-deploy/helm/nexogent/           backend, frontend, prowler CronJob, PVC, ingress, serviceaccount
+deploy/helm/CodeSentinal./           backend, frontend, prowler CronJob, PVC, ingress, serviceaccount
 deploy/iam/                     read-only policy
 docs/                           PRODUCT.md, SOW.md, DEPLOYMENT.md, PREREQUISITES.md
 ```
@@ -330,7 +330,7 @@ Implement for Memory and Dynamo. Partitions: `review`, `history`, `risk`, `plan`
 
 **Deep scan:**
 
-- `internal/kube`: a stdlib `net/http` client using `KUBERNETES_SERVICE_HOST`/`PORT`, the token at `/var/run/secrets/kubernetes.io/serviceaccount/token`, the CA at `.../ca.crt`, and the namespace from `.../namespace`. Methods: `GetCronJob(name)`, `CreateJobFromCronJob(name, jobName)`, `GetJob(name)`, `ListJobs(labelSelector)`. `CreateJobFromCronJob` copies `spec.jobTemplate.spec` and metadata labels, sets `ttlSecondsAfterFinished: 3600`, annotation `cronjob.kubernetes.io/instantiate: manual`, and the label `nexogent/deep-scan: "true"`. Define the interface `JobRunner` and test the API handler with a fake; test the client with `httptest.NewTLSServer`.
+- `internal/kube`: a stdlib `net/http` client using `KUBERNETES_SERVICE_HOST`/`PORT`, the token at `/var/run/secrets/kubernetes.io/serviceaccount/token`, the CA at `.../ca.crt`, and the namespace from `.../namespace`. Methods: `GetCronJob(name)`, `CreateJobFromCronJob(name, jobName)`, `GetJob(name)`, `ListJobs(labelSelector)`. `CreateJobFromCronJob` copies `spec.jobTemplate.spec` and metadata labels, sets `ttlSecondsAfterFinished: 3600`, annotation `cronjob.kubernetes.io/instantiate: manual`, and the label `CodeSentinal./deep-scan: "true"`. Define the interface `JobRunner` and test the API handler with a fake; test the client with `httptest.NewTLSServer`.
 - Endpoints: `POST /api/v1/scans/deep` -> `202 {run_id, job_name}` or `409` if a deep-scan job is already active; `GET /api/v1/scans/{id}` -> `{state: queued|running|completed|failed, started_at, finished_at, message}` derived from `Job.status` (`active`, `succeeded`, `failed`, conditions). When a poll sees `succeeded` the first time, ingest the Prowler results and run a full reconcile with `Ran[prowler]=true` (scan state is kept in the store so a restart does not lose it). If the Kubernetes client is unavailable (local mode, demo mode), return `501` with a clear message and have the UI hide the button.
 - Helm: `role.yaml` (Role in the release namespace: `batch/cronjobs` `get`; `batch/jobs` `create`,`get`,`list`) and `rolebinding.yaml` to the existing service account.
 - **Volume co-location (D10):** add `podAffinity` (`requiredDuringSchedulingIgnoredDuringExecution`, topologyKey `kubernetes.io/hostname`) to the Prowler CronJob pod template, selecting the backend pods by label, so the RWO volume mounts. Document that moving to EFS removes the constraint.
@@ -498,8 +498,8 @@ Use the `frontend-design` guidance if your AI has it. Do not ship the current da
 4. **RBAC:** `role.yaml` and `rolebinding.yaml` (section 8.3).
 5. **Prowler:** pin the image tag (no `latest`); add the pod affinity; keep `runAsUser: 1000` and no command override.
 6. **Replicas:** allow `backend.replicaCount > 1` (lease makes it safe). Add a `PodDisruptionBudget` only if replicas > 1.
-7. **IAM policy** (`deploy/iam/nexogent-readonly-policy.json`): confirm the new calls are covered (`iam:GetRolePolicy`, `ListAttachedRolePolicies`, `GetPolicyVersion`, `ListAccessKeys`, `GetLoginProfile`, `GetAccountSummary`, `ec2:DescribeSecurityGroups`, `DescribeVolumes`, `DescribeInstances`, `rds:DescribeDBInstances`, `lambda:GetFunctionUrlConfig`, `s3:GetBucketPolicyStatus`, `GetBucketAcl`, `GetBucketPublicAccessBlock`, `cloudtrail:DescribeTrails`, `GetTrailStatus`). Add what is missing. **Do not add any write action** except on the `nexogent-reviews` table.
-8. Run `helm lint deploy/helm/nexogent` and `helm template` with `ingress.certificateArn` set and unset, and compare.
+7. **IAM policy** (`deploy/iam/CodeSentinal.-readonly-policy.json`): confirm the new calls are covered (`iam:GetRolePolicy`, `ListAttachedRolePolicies`, `GetPolicyVersion`, `ListAccessKeys`, `GetLoginProfile`, `GetAccountSummary`, `ec2:DescribeSecurityGroups`, `DescribeVolumes`, `DescribeInstances`, `rds:DescribeDBInstances`, `lambda:GetFunctionUrlConfig`, `s3:GetBucketPolicyStatus`, `GetBucketAcl`, `GetBucketPublicAccessBlock`, `cloudtrail:DescribeTrails`, `GetTrailStatus`). Add what is missing. **Do not add any write action** except on the `CodeSentinal.-reviews` table.
+8. Run `helm lint deploy/helm/CodeSentinal.` and `helm template` with `ingress.certificateArn` set and unset, and compare.
 9. `start.sh` and `stop.sh`: pass the new values; keep `stop.sh --purge` complete.
 
 ---
@@ -535,12 +535,12 @@ go test ./... -race -count=1
 cd dashboard && npm ci && npm run build && cd ..
 
 # Helm
-helm lint deploy/helm/nexogent
-helm template nexogent deploy/helm/nexogent --set ingress.certificateArn=arn:aws:acm:us-east-1:123456789012:certificate/x > /tmp/with-tls.yaml
-helm template nexogent deploy/helm/nexogent > /tmp/no-tls.yaml
+helm lint deploy/helm/CodeSentinal.
+helm template CodeSentinal. deploy/helm/CodeSentinal. --set ingress.certificateArn=arn:aws:acm:us-east-1:123456789012:certificate/x > /tmp/with-tls.yaml
+helm template CodeSentinal. deploy/helm/CodeSentinal. > /tmp/no-tls.yaml
 
 # Demo smoke (no AWS needed)
-DEMO_MODE=true SUPERADMIN_PASSWORD=demo SESSION_SECRET=$(openssl rand -hex 32) go run ./cmd/nexogent &
+DEMO_MODE=true SUPERADMIN_PASSWORD=demo SESSION_SECRET=$(openssl rand -hex 32) go run ./cmd/CodeSentinal. &
 sleep 2
 TOKEN=$(curl -s -XPOST localhost:8080/api/v1/auth/login -d '{"password":"demo"}' | jq -r .token)
 for p in overview findings paths risks reports history activity settings; do
@@ -569,7 +569,7 @@ If a command cannot run in your environment (for example no network for Go modul
 | 6 | Local mode, demo mode, docs | AC-23 to AC-25 pass |
 | 7 | Run the manual checks on a real account; fix; final report | all AC pass |
 
-**Definition of done:** all acceptance criteria in the SOW for the chosen edition pass; section 16 commands are green; no write actions on client resources exist (search the code for `Create`, `Put`, `Delete`, `Update`, `Modify`, `Attach`, `Enable`, `Tag` on AWS clients and justify each: only the Nexogent DynamoDB table is allowed); no vendor or customer names appear anywhere (`grep -ri` the repo).
+**Definition of done:** all acceptance criteria in the SOW for the chosen edition pass; section 16 commands are green; no write actions on client resources exist (search the code for `Create`, `Put`, `Delete`, `Update`, `Modify`, `Attach`, `Enable`, `Tag` on AWS clients and justify each: only the CodeSentinal. DynamoDB table is allowed); no vendor or customer names appear anywhere (`grep -ri` the repo).
 
 **Final report format** (end of your work): what you built per feature id; what you could not run or verify and why; every `TODO(verify)`; the exact commands the human should run next; any deviation from this spec and the reason.
 
@@ -612,9 +612,9 @@ Page through results with a cap (default 5000 per source per region) and add a w
 
 - Extend `equivalence.json` with a `securityhub` block mapping native control ids to canonical keys. **Only map controls you can verify** against the Security Hub controls reference; leave unmapped ones as `securityhub:<id>`.
 - Attack paths: pass `signals` into `attackpath.Compute` (per resource: `known_exploit_cve`, `active_threat`). If an AP-1 or AP-2 instance has either signal, add it to `Signals`, raise `Score` by 10 (cap 100), and keep Severity Critical.
-- `GET integrations` returns for each of guardduty, securityhub, inspector, accessanalyzer: `{key, name, description, state: not_enabled|enabled_reading|enabled_off|permission_missing, enabled_in_settings, cost_note, enablement_guide_url?}`. State comes from read-only probes (`DescribeHub`, `ListDetectors`, `BatchGetAccountStatus`, `ListAnalyzers`) with a 10 minute cache. The toggle writes only to Nexogent settings. **No code path may call an enable, create or update API of these services.**
-- Cost note text: "This is a paid AWS service that the client enables. Check current AWS pricing and any free trial before enabling. Nexogent only reads findings."
-- New policy file `deploy/iam/nexogent-native-readers-policy.json` with exactly the actions in Appendix E of the paid SOW; Helm value `nativeReaders.enabled` attaches it only when true; document it.
+- `GET integrations` returns for each of guardduty, securityhub, inspector, accessanalyzer: `{key, name, description, state: not_enabled|enabled_reading|enabled_off|permission_missing, enabled_in_settings, cost_note, enablement_guide_url?}`. State comes from read-only probes (`DescribeHub`, `ListDetectors`, `BatchGetAccountStatus`, `ListAnalyzers`) with a 10 minute cache. The toggle writes only to CodeSentinal. settings. **No code path may call an enable, create or update API of these services.**
+- Cost note text: "This is a paid AWS service that the client enables. Check current AWS pricing and any free trial before enabling. CodeSentinal. only reads findings."
+- New policy file `deploy/iam/CodeSentinal.-native-readers-policy.json` with exactly the actions in Appendix E of the paid SOW; Helm value `nativeReaders.enabled` attaches it only when true; document it.
 - UI: Overview **Active threats** panel (type, resource, severity, first and last seen, link); resource page **Vulnerabilities** tab (CVE, package, fixed-in, exploit flag); source chips show the native product; the Settings and integrations screen shows the four states.
 
 ## B5. Part B tests and exit check

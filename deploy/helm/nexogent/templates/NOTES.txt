@@ -1,15 +1,15 @@
-Nexogent (microservices) installed in namespace "{{ .Release.Namespace }}".
+CodeSentinal. (microservices) installed in namespace "{{ .Release.Namespace }}".
 
 READ-ONLY. It inventories the account and reports; it changes nothing.
 
 Workloads deployed:
-  - nexogent-backend   (Deployment + Service)  Go agent/API, IRSA read-only
-  - nexogent-frontend  (Deployment + Service)  React dashboard (Nginx)
+  - CodeSentinal.-backend   (Deployment + Service)  Go agent/API, IRSA read-only
+  - CodeSentinal.-frontend  (Deployment + Service)  React dashboard (Nginx)
 {{- if .Values.prowler.enabled }}
-  - nexogent-prowler   (CronJob{{ if .Values.prowler.runOnInstall }} + initial Job{{ end }})  open-source Prowler scanner, IRSA read-only
+  - CodeSentinal.-prowler   (CronJob{{ if .Values.prowler.runOnInstall }} + initial Job{{ end }})  open-source Prowler scanner, IRSA read-only
 {{- end }}
 {{- if .Values.ingress.enabled }}
-  - nexogent           (Ingress / ALB)         public entry: / -> frontend, /api -> backend
+  - CodeSentinal.           (Ingress / ALB)         public entry: / -> frontend, /api -> backend
 {{- end }}
 
 Check status:
@@ -17,10 +17,10 @@ Check status:
 
 {{ if .Values.ingress.enabled -}}
 Get the public URL (ALB takes ~2-3 min to provision):
-  kubectl -n {{ .Release.Namespace }} get ingress nexogent -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'
+  kubectl -n {{ .Release.Namespace }} get ingress CodeSentinal. -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'
 {{- else -}}
 Port-forward the dashboard:
-  kubectl -n {{ .Release.Namespace }} port-forward svc/nexogent-frontend 8080:{{ .Values.frontend.service.port }}
+  kubectl -n {{ .Release.Namespace }} port-forward svc/CodeSentinal.-frontend 8080:{{ .Values.frontend.service.port }}
 {{- end }}
 
 Backend IRSA role: {{ .Values.serviceAccount.roleArn | default "(set serviceAccount.roleArn)" }}

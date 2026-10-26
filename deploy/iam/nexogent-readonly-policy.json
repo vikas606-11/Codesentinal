@@ -57,8 +57,8 @@
         "dynamodb:BatchWriteItem"
       ],
       "Resource": [
-        "arn:aws:dynamodb:*:*:table/nexogent-reviews",
-        "arn:aws:dynamodb:*:*:table/nexogent-reviews/index/*"
+        "arn:aws:dynamodb:*:*:table/CodeSentinal.-reviews",
+        "arn:aws:dynamodb:*:*:table/CodeSentinal.-reviews/index/*"
       ]
     }
   ]

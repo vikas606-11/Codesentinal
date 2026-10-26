@@ -1,4 +1,4 @@
-# Local mode (F18): run Nexogent on a laptop against your own read-only AWS
+# Local mode (F18): run CodeSentinal. on a laptop against your own read-only AWS
 # profile, with no cluster. Deep scans are unavailable locally (kube_available=false).
 #
 #   cp .env.example .env   # set SUPERADMIN_PASSWORD, AWS_PROFILE, AWS_REGION

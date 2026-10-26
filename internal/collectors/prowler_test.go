@@ -8,11 +8,11 @@ import (
 )
 
 // TestProwlerParseReal validates the parser against a real Prowler OCSF file
-// if one is present at NEXOGENT_OCSF_TESTFILE (CI/local only). Skips otherwise.
+// if one is present at CodeSentinal._OCSF_TESTFILE (CI/local only). Skips otherwise.
 func TestProwlerParseReal(t *testing.T) {
-	src := os.Getenv("NEXOGENT_OCSF_TESTFILE")
+	src := os.Getenv("CodeSentinal._OCSF_TESTFILE")
 	if src == "" {
-		t.Skip("set NEXOGENT_OCSF_TESTFILE to a Prowler OCSF json to run")
+		t.Skip("set CodeSentinal._OCSF_TESTFILE to a Prowler OCSF json to run")
 	}
 	data, err := os.ReadFile(src)
 	if err != nil {

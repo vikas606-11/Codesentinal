@@ -1,4 +1,4 @@
-# Default values for the Nexogent microservice chart.
+# Default values for the CodeSentinal. microservice chart.
 #
 # Deploys THREE workloads into the client's EKS:
 #   - backend  : Go agent/API (read-only, IRSA)            [Deployment + Service]
@@ -28,7 +28,7 @@ allowedOrigin: ""
 
 # ---- persistence (DynamoDB) so reviews survive restarts / multi-replica ----
 persistence:
-  reviewsTable: "nexogent-reviews"   # empty => in-memory only
+  reviewsTable: "CodeSentinal.-reviews"   # empty => in-memory only
 
 # ---- v1: in-process scheduler (periodic reviews). Empty disables it ----
 # The Prowler CronJob still runs on its own schedule regardless.
@@ -37,8 +37,8 @@ scanInterval: "6h"
 # The read-only IRSA role both the backend and scanners assume. No static keys.
 serviceAccount:
   create: true
-  name: nexogent-sa
-  roleArn: "" # arn:aws:iam::<account>:role/NexogentReadOnly
+  name: CodeSentinal.-sa
+  roleArn: "" # arn:aws:iam::<account>:role/CodeSentinal.ReadOnly
 
 # Shared volume where scanners write results and the backend reads them.
 # All scanner dirs live under this one PVC mount (/data).
@@ -57,7 +57,7 @@ scannerDirs:
 # ---------------------------------------------------------------- backend ----
 backend:
   image:
-    repository: ""   # <acct>.dkr.ecr.<region>.amazonaws.com/nexogent
+    repository: ""   # <acct>.dkr.ecr.<region>.amazonaws.com/CodeSentinal.
     tag: latest
     pullPolicy: Always
   replicaCount: 1
@@ -70,7 +70,7 @@ backend:
 # --------------------------------------------------------------- frontend ----
 frontend:
   image:
-    repository: ""   # <acct>.dkr.ecr.<region>.amazonaws.com/nexogent-frontend
+    repository: ""   # <acct>.dkr.ecr.<region>.amazonaws.com/CodeSentinal.-frontend
     tag: latest
     pullPolicy: Always
   replicaCount: 1

@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/sriramg-aivar/nexogent/internal/types"
+	"github.com/sriramg-aivar/CodeSentinal./internal/types"
 )
 
 func TestAllTemplatesRenderCleanly(t *testing.T) {

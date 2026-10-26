@@ -1,4 +1,4 @@
-# Nexogent — Test Cases (Free Build)
+# CodeSentinal. — Test Cases (Free Build)
 
 How to check the platform is working. Each test has steps and the expected result.
 Run against the live deployment on `eks-lab`. Deploy/operate commands are in
@@ -6,7 +6,7 @@ RUNBOOK.md; this file is only "does it work?".
 
 Set up once per session:
 ```bash
-URL=$(kubectl -n nexogent get ingress nexogent -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+URL=$(kubectl -n CodeSentinal. get ingress CodeSentinal. -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
 TOKEN=$(curl -s -XPOST http://$URL/api/v1/auth/login -d '{"password":"'"$SUPERADMIN_PASSWORD"'"}' | jq -r .token)
 H="Authorization: Bearer $TOKEN"
 ```
@@ -19,7 +19,7 @@ H="Authorization: Bearer $TOKEN"
 ```bash
 curl -s http://$URL/health
 ```
-Expect: `{"status":"ok","service":"nexogent","store":"dynamodb:nexogent-reviews"}`.
+Expect: `{"status":"ok","service":"CodeSentinal.","store":"dynamodb:CodeSentinal.-reviews"}`.
 
 **T2 — Meta reports the right mode**
 ```bash
@@ -220,7 +220,7 @@ Expect: guardduty / securityhub / inspector all `enabled:false, available:false`
 curl -s -o /dev/null -w "%{http_code}\n" http://$URL/
 curl -s http://$URL/ | grep -o '<title>.*</title>'
 ```
-Expect: `200` and the Nexogent title; assets under `/assets/*.js` return `200`.
+Expect: `200` and the CodeSentinal. title; assets under `/assets/*.js` return `200`.
 
 **T28 — Security headers present**
 ```bash
@@ -239,7 +239,7 @@ by keyboard and in both light/dark themes.
 ## Safety (must always hold)
 
 **T30 — Read-only**: no API makes a write/modify/delete call on a client resource;
-the IAM policy has no write action except on the `nexogent-reviews` table.
+the IAM policy has no write action except on the `CodeSentinal.-reviews` table.
 
 **T31 — No static keys**: the backend pod has `AWS_ROLE_ARN` + a web-identity token
 (IRSA), not static credentials (see the debug command in RUNBOOK §4).

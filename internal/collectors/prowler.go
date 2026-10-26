@@ -1,7 +1,7 @@
 // Package collectors — Prowler collector.
 //
 // Prowler (https://github.com/prowler-cloud/prowler) is the open-source,
-// read-only AWS security scanner Nexogent delegates broad check coverage to
+// read-only AWS security scanner CodeSentinal. delegates broad check coverage to
 // (CIS / AWS FSBP, hundreds of controls). It runs as a separate Kubernetes
 // CronJob under the same read-only IRSA role and writes OCSF JSON to a shared
 // results directory. This collector ingests that JSON — it never runs scans
@@ -18,9 +18,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/sriramg-aivar/nexogent/internal/fingerprint"
-	"github.com/sriramg-aivar/nexogent/internal/ranking"
-	"github.com/sriramg-aivar/nexogent/internal/types"
+	"github.com/sriramg-aivar/CodeSentinal./internal/fingerprint"
+	"github.com/sriramg-aivar/CodeSentinal./internal/ranking"
+	"github.com/sriramg-aivar/CodeSentinal./internal/types"
 )
 
 // ProwlerCollector reads Prowler OCSF JSON results from a directory.

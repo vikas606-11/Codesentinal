@@ -1,6 +1,6 @@
 # Cluster prerequisites (one-time per EKS cluster)
 
-Nexogent's microservice chart needs two cluster add-ons:
+CodeSentinal.'s microservice chart needs two cluster add-ons:
 
 1. **Amazon EBS CSI driver** — provisions the shared PVC where Prowler writes
    its OCSF results and the backend reads them.

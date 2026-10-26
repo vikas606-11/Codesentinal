@@ -3,7 +3,7 @@ package attackpath
 import (
 	"testing"
 
-	"github.com/sriramg-aivar/nexogent/internal/types"
+	"github.com/sriramg-aivar/CodeSentinal./internal/types"
 )
 
 func baseFacts() Facts {

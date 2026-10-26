@@ -1,6 +1,6 @@
 apiVersion: v2
-name: nexogent
-description: Nexogent — read-only AWS SecOps posture agent, deployed per-client into their EKS cluster.
+name: CodeSentinal.
+description: CodeSentinal. — read-only AWS SecOps posture agent, deployed per-client into their EKS cluster.
 type: application
 version: 0.1.0
 appVersion: "0.1.0"
@@ -9,4 +9,4 @@ keywords:
   - aws
   - secops
   - read-only
-home: https://github.com/sriramg-aivar/nexogent
+home: https://github.com/sriramg-aivar/CodeSentinal.

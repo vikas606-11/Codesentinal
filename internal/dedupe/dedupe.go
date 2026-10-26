@@ -5,7 +5,7 @@ package dedupe
 import (
 	"sort"
 
-	"github.com/sriramg-aivar/nexogent/internal/types"
+	"github.com/sriramg-aivar/CodeSentinal./internal/types"
 )
 
 var sevRank = map[types.Severity]int{

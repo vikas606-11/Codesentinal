@@ -16,7 +16,7 @@ export default function Login({ onLogin }) {
   return (
     <div className="login-wrap">
       <form className="login" onSubmit={submit}>
-        <div className="brand" style={{ fontSize: 26, padding: 0, marginBottom: 8 }}><span className="logo">◆</span> Nexogent</div>
+        <div className="brand" style={{ fontSize: 26, padding: 0, marginBottom: 8 }}><span className="logo">◆</span> CodeSentinal.</div>
         <p className="muted">Sign in as superadmin.</p>
         <input type="password" placeholder="Superadmin password" value={password} autoFocus onChange={e => setPassword(e.target.value)} aria-label="Superadmin password" />
         {err && <div className="banner error">{err}</div>}

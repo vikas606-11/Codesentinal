@@ -1,11 +1,11 @@
-# Nexogent — Runbook (Free Build)
+# CodeSentinal. — Runbook (Free Build)
 
 Everything operational: one-time setup, the start/stop scripts, manual deploy
 commands, and debugging. Architecture and "how it works" live in **DEPLOYMENT.md**;
 test cases live in **VERIFY.md**.
 
-Target: our own account, cluster `eks-lab`, region `us-east-1`, namespace `nexogent`.
-Everything is read-only on AWS; the only write is to the `nexogent-reviews` table.
+Target: our own account, cluster `eks-lab`, region `us-east-1`, namespace `CodeSentinal.`.
+Everything is read-only on AWS; the only write is to the `CodeSentinal.-reviews` table.
 
 ---
 
@@ -35,7 +35,7 @@ export SUPERADMIN_PASSWORD='choose-a-strong-password'   # never commit this
 ./start.sh
 
 # optional overrides (defaults shown):
-# REGION=us-east-1 CLUSTER=eks-lab NAMESPACE=nexogent DESIRED_NODES=2 ./start.sh
+# REGION=us-east-1 CLUSTER=eks-lab NAMESPACE=CodeSentinal. DESIRED_NODES=2 ./start.sh
 ```
 
 When it finishes it prints the public URL and how to trigger the first Prowler scan.
@@ -45,7 +45,7 @@ Tear down (stop billing, keep the cluster):
 ```bash
 ./stop.sh            # helm uninstall + scale the node group to 0
 ./stop.sh --purge    # also delete IAM policy/role, both ECR repos, the DynamoDB
-                     # table, the RBAC, and the nexogent namespace
+                     # table, the RBAC, and the CodeSentinal. namespace
 ```
 
 ---
@@ -64,36 +64,36 @@ CLUSTER=eks-lab
 ### 3.1 ECR repos + build/push both images
 ```bash
 aws ecr get-login-password --region $REGION | docker login --username AWS --password-stdin $ECR
-for repo in nexogent nexogent-frontend; do
+for repo in CodeSentinal. CodeSentinal.-frontend; do
   aws ecr describe-repositories --repository-names $repo --region $REGION >/dev/null 2>&1 \
     || aws ecr create-repository --repository-name $repo --region $REGION
 done
-docker build --platform linux/amd64 -t $ECR/nexogent:latest .
-docker push $ECR/nexogent:latest
-docker build --platform linux/amd64 -t $ECR/nexogent-frontend:latest ./dashboard
-docker push $ECR/nexogent-frontend:latest
+docker build --platform linux/amd64 -t $ECR/CodeSentinal.:latest .
+docker push $ECR/CodeSentinal.:latest
+docker build --platform linux/amd64 -t $ECR/CodeSentinal.-frontend:latest ./dashboard
+docker push $ECR/CodeSentinal.-frontend:latest
 ```
 
 ### 3.2 Read-only IAM policy + IRSA service account
 ```bash
-aws iam create-policy --policy-name NexogentReadOnly \
-  --policy-document file://deploy/iam/nexogent-readonly-policy.json || true
+aws iam create-policy --policy-name CodeSentinal.ReadOnly \
+  --policy-document file://deploy/iam/CodeSentinal.-readonly-policy.json || true
 # update an existing policy to the latest document:
-# aws iam create-policy-version --policy-arn arn:aws:iam::$ACCOUNT_ID:policy/NexogentReadOnly \
-#   --policy-document file://deploy/iam/nexogent-readonly-policy.json --set-as-default
+# aws iam create-policy-version --policy-arn arn:aws:iam::$ACCOUNT_ID:policy/CodeSentinal.ReadOnly \
+#   --policy-document file://deploy/iam/CodeSentinal.-readonly-policy.json --set-as-default
 
 eksctl utils associate-iam-oidc-provider --cluster $CLUSTER --region $REGION --approve
 eksctl create iamserviceaccount \
   --cluster $CLUSTER --region $REGION \
-  --namespace nexogent --name nexogent-sa \
-  --role-name NexogentReadOnly \
-  --attach-policy-arn arn:aws:iam::$ACCOUNT_ID:policy/NexogentReadOnly \
+  --namespace CodeSentinal. --name CodeSentinal.-sa \
+  --role-name CodeSentinal.ReadOnly \
+  --attach-policy-arn arn:aws:iam::$ACCOUNT_ID:policy/CodeSentinal.ReadOnly \
   --approve --override-existing-serviceaccounts
 ```
 
 ### 3.3 DynamoDB table (persistence)
 ```bash
-aws dynamodb create-table --table-name nexogent-reviews --region $REGION \
+aws dynamodb create-table --table-name CodeSentinal.-reviews --region $REGION \
   --billing-mode PAY_PER_REQUEST \
   --attribute-definitions AttributeName=pk,AttributeType=S AttributeName=sk,AttributeType=S \
   --key-schema AttributeName=pk,KeyType=HASH AttributeName=sk,KeyType=RANGE
@@ -101,14 +101,14 @@ aws dynamodb create-table --table-name nexogent-reviews --region $REGION \
 
 ### 3.4 Helm install / upgrade
 ```bash
-ROLE_ARN=$(aws iam get-role --role-name NexogentReadOnly --query 'Role.Arn' --output text)
-helm upgrade --install nexogent deploy/helm/nexogent \
-  --namespace nexogent --create-namespace \
-  --set backend.image.repository=$ECR/nexogent         --set backend.image.tag=latest \
-  --set frontend.image.repository=$ECR/nexogent-frontend --set frontend.image.tag=latest \
-  --set serviceAccount.create=false --set serviceAccount.name=nexogent-sa \
+ROLE_ARN=$(aws iam get-role --role-name CodeSentinal.ReadOnly --query 'Role.Arn' --output text)
+helm upgrade --install CodeSentinal. deploy/helm/CodeSentinal. \
+  --namespace CodeSentinal. --create-namespace \
+  --set backend.image.repository=$ECR/CodeSentinal.         --set backend.image.tag=latest \
+  --set frontend.image.repository=$ECR/CodeSentinal.-frontend --set frontend.image.tag=latest \
+  --set serviceAccount.create=false --set serviceAccount.name=CodeSentinal.-sa \
   --set serviceAccount.roleArn=$ROLE_ARN --set region=$REGION \
-  --set persistence.reviewsTable=nexogent-reviews \
+  --set persistence.reviewsTable=CodeSentinal.-reviews \
   --set-string auth.password="$SUPERADMIN_PASSWORD" \
   --wait --timeout 6m
 ```
@@ -123,13 +123,13 @@ Optional values:
 ### 3.5 Pull the new image after a rebuild
 `latest` + `pullPolicy: Always` means a restart re-pulls:
 ```bash
-kubectl -n nexogent rollout restart deploy/nexogent-backend deploy/nexogent-frontend
-kubectl -n nexogent rollout status  deploy/nexogent-backend
+kubectl -n CodeSentinal. rollout restart deploy/CodeSentinal.-backend deploy/CodeSentinal.-frontend
+kubectl -n CodeSentinal. rollout status  deploy/CodeSentinal.-backend
 ```
 
 ### 3.6 Get the public URL
 ```bash
-kubectl -n nexogent get ingress nexogent \
+kubectl -n CodeSentinal. get ingress CodeSentinal. \
   -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'
 ```
 
@@ -139,37 +139,37 @@ kubectl -n nexogent get ingress nexogent \
 
 ```bash
 # What's deployed
-kubectl -n nexogent get deploy,svc,cronjob,ingress,role,rolebinding,pods,pvc
+kubectl -n CodeSentinal. get deploy,svc,cronjob,ingress,role,rolebinding,pods,pvc
 
 # Logs
-kubectl -n nexogent logs deploy/nexogent-backend --tail=100
-kubectl -n nexogent logs deploy/nexogent-frontend --tail=50
+kubectl -n CodeSentinal. logs deploy/CodeSentinal.-backend --tail=100
+kubectl -n CodeSentinal. logs deploy/CodeSentinal.-frontend --tail=50
 
 # Describe a stuck pod (events at the bottom)
-kubectl -n nexogent describe pod -l app.kubernetes.io/component=backend
+kubectl -n CodeSentinal. describe pod -l app.kubernetes.io/component=backend
 
 # Confirm the running image digest matches the one you pushed
-kubectl -n nexogent get pod -l app.kubernetes.io/component=backend \
+kubectl -n CodeSentinal. get pod -l app.kubernetes.io/component=backend \
   -o jsonpath='{.items[0].status.containerStatuses[0].imageID}'; echo
-aws ecr describe-images --repository-name nexogent --region us-east-1 \
+aws ecr describe-images --repository-name CodeSentinal. --region us-east-1 \
   --image-ids imageTag=latest --query 'imageDetails[0].imageDigest' --output text
 
 # Confirm IRSA is wired (no static keys)
-POD=$(kubectl -n nexogent get pod -l app.kubernetes.io/component=backend -o jsonpath='{.items[0].metadata.name}')
-kubectl -n nexogent describe pod $POD | grep -A2 AWS_ROLE_ARN
+POD=$(kubectl -n CodeSentinal. get pod -l app.kubernetes.io/component=backend -o jsonpath='{.items[0].metadata.name}')
+kubectl -n CodeSentinal. describe pod $POD | grep -A2 AWS_ROLE_ARN
 
 # Prowler CronJob + on-demand deep-scan Jobs
-kubectl -n nexogent get cronjob nexogent-prowler
-kubectl -n nexogent get jobs -l nexogent/deep-scan=true
-kubectl -n nexogent logs -l job-name=<job-name> --tail=40
+kubectl -n CodeSentinal. get cronjob CodeSentinal.-prowler
+kubectl -n CodeSentinal. get jobs -l CodeSentinal./deep-scan=true
+kubectl -n CodeSentinal. logs -l job-name=<job-name> --tail=40
 
 # Health + API through the ALB
-URL=$(kubectl -n nexogent get ingress nexogent -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+URL=$(kubectl -n CodeSentinal. get ingress CodeSentinal. -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
 curl -s http://$URL/health
 curl -s http://$URL/api/v1/meta
 
 # Port-forward the backend directly (bypass the ALB)
-kubectl -n nexogent port-forward svc/nexogent-backend 8080:8080
+kubectl -n CodeSentinal. port-forward svc/CodeSentinal.-backend 8080:8080
 ```
 
 ### Common issues
@@ -192,13 +192,13 @@ kubectl -n nexogent port-forward svc/nexogent-backend 8080:8080
 
 ```bash
 # Superadmin password
-helm upgrade nexogent deploy/helm/nexogent --namespace nexogent --reuse-values \
+helm upgrade CodeSentinal. deploy/helm/CodeSentinal. --namespace CodeSentinal. --reuse-values \
   --set-string auth.password="NEW-PASSWORD"
-kubectl -n nexogent rollout restart deploy/nexogent-backend
+kubectl -n CodeSentinal. rollout restart deploy/CodeSentinal.-backend
 
 # Session secret — delete the key (or the whole Secret) and upgrade; the chart makes
 # a fresh one and all existing sessions are invalidated.
-kubectl -n nexogent delete secret nexogent-auth
-helm upgrade nexogent deploy/helm/nexogent --namespace nexogent --reuse-values \
+kubectl -n CodeSentinal. delete secret CodeSentinal.-auth
+helm upgrade CodeSentinal. deploy/helm/CodeSentinal. --namespace CodeSentinal. --reuse-values \
   --set-string auth.password="$SUPERADMIN_PASSWORD"
 ```

@@ -1,6 +1,6 @@
 {{/* Reusable Prowler pod spec (read-only scan, writes OCSF JSON to the PVC). */}}
-{{- define "nexogent.prowlerPodSpec" -}}
-serviceAccountName: {{ include "nexogent.serviceAccountName" . }}
+{{- define "CodeSentinal..prowlerPodSpec" -}}
+serviceAccountName: {{ include "CodeSentinal..serviceAccountName" . }}
 restartPolicy: Never
 securityContext:
   {{- toYaml .Values.podSecurityContext | nindent 2 }}
@@ -11,7 +11,7 @@ affinity:
     requiredDuringSchedulingIgnoredDuringExecution:
       - labelSelector:
           matchLabels:
-            app.kubernetes.io/name: nexogent
+            app.kubernetes.io/name: CodeSentinal.
             app.kubernetes.io/component: backend
         topologyKey: kubernetes.io/hostname
 containers:
@@ -49,17 +49,17 @@ containers:
 volumes:
   - name: prowler-results
     persistentVolumeClaim:
-      claimName: nexogent-prowler-results
+      claimName: CodeSentinal.-prowler-results
 {{- end -}}
 {{- if .Values.prowler.enabled -}}
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: nexogent-prowler
+  name: CodeSentinal.-prowler
   namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "nexogent.labels" . | nindent 4 }}
-    app.kubernetes.io/name: nexogent
+    {{- include "CodeSentinal..labels" . | nindent 4 }}
+    app.kubernetes.io/name: CodeSentinal.
     app.kubernetes.io/component: prowler
 spec:
   schedule: {{ .Values.prowler.schedule | quote }}
@@ -72,7 +72,7 @@ spec:
       template:
         metadata:
           labels:
-            {{- include "nexogent.componentSelector" (dict "root" . "component" "prowler") | nindent 12 }}
+            {{- include "CodeSentinal..componentSelector" (dict "root" . "component" "prowler") | nindent 12 }}
         spec:
-          {{- include "nexogent.prowlerPodSpec" . | nindent 10 }}
+          {{- include "CodeSentinal..prowlerPodSpec" . | nindent 10 }}
 {{- end -}}

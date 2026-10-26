@@ -1,8 +1,8 @@
-# Nexogent
+# CodeSentinal.
 
 **An AWS SecOps agent you deploy into a client's own AWS account.**
 
-Nexogent runs inside the client's Amazon EKS cluster, discovers every AWS resource
+CodeSentinal. runs inside the client's Amazon EKS cluster, discovers every AWS resource
 in the account (grouped by service), runs read-only security checks plus the
 open-source **Prowler** scanner, ranks findings by real risk, and presents a
 security posture dashboard with AI-generated explanations (via Amazon Bedrock).
@@ -20,24 +20,24 @@ runtime is needed.
 When installed, the Helm chart deploys **three separate workloads** into the
 client's cluster, plus a shared volume and a public load balancer:
 
-- **backend** (`nexogent-backend`, Deployment+Service) — the Go agent/API.
+- **backend** (`CodeSentinal.-backend`, Deployment+Service) — the Go agent/API.
   Read-only, runs under the IRSA role. Serves `/api/v1/*`.
-- **frontend** (`nexogent-frontend`, Deployment+Service) — the React dashboard
+- **frontend** (`CodeSentinal.-frontend`, Deployment+Service) — the React dashboard
   served by Nginx, which proxies `/api` to the backend.
-- **prowler** (`nexogent-prowler`, CronJob) — the open-source **Prowler**
+- **prowler** (`CodeSentinal.-prowler`, CronJob) — the open-source **Prowler**
   scanner. Runs read-only under the same IRSA role on a schedule and writes
   OCSF JSON to a shared PVC that the backend ingests.
 - **ingress** (ALB) — one public URL: `/` → frontend, `/api` + `/health` → backend.
 
 ### Source layout
-- `cmd/nexogent` — the agent / API server (Go)
+- `cmd/CodeSentinal.` — the agent / API server (Go)
 - `internal/discovery` — read-only AWS resource inventory, grouped by service
 - `internal/collectors` — read-only security checks: own-checks + **Prowler** (OCSF ingest)
 - `internal/ranking` — deterministic risk rubric (severity/exposure/reachability/criticality)
 - `internal/bedrock` — Bedrock explanations with offline fallback
 - `internal/api` — HTTP API for the dashboard
 - `dashboard/` — React dashboard (Vite + Nginx)
-- `deploy/helm/nexogent` — Helm chart (backend, frontend, prowler, PVC, ALB ingress)
+- `deploy/helm/CodeSentinal.` — Helm chart (backend, frontend, prowler, PVC, ALB ingress)
 
 ## Docs
 - `docs/PRODUCT.md` — the product vision and how it works

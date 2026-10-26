@@ -3,8 +3,8 @@ package api
 import (
 	"testing"
 
-	"github.com/sriramg-aivar/nexogent/internal/attackpath"
-	"github.com/sriramg-aivar/nexogent/internal/types"
+	"github.com/sriramg-aivar/CodeSentinal./internal/attackpath"
+	"github.com/sriramg-aivar/CodeSentinal./internal/types"
 )
 
 func TestBuildFactsFromReviewPublicBucket(t *testing.T) {

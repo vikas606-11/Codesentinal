@@ -1,21 +1,21 @@
-# Nexogent — Statement of Work
+# CodeSentinal. — Statement of Work
 
 **Free Build (v2): MSP security posture platform that runs on free, read-only AWS APIs**
 
 | | |
 |---|---|
-| **Product** | Nexogent, an AWS SecOps agent for managed service providers (MSPs) |
+| **Product** | CodeSentinal., an AWS SecOps agent for managed service providers (MSPs) |
 | **Edition** | **Free build.** Uses no paid AWS security service: no GuardDuty, no Security Hub, no Inspector |
 | **Supplier** | [Supplier name] |
 | **Customer** | [MSP name] |
 | **Delivery model** | One private deployment per managed client, inside that client's own AWS account. Not a shared SaaS |
 | **Account scope** | One AWS account per deployment. AWS Organizations and multi-account views are out of scope and planned for a later release |
 | **Document status** | Draft v2.0 for review, 24-Oct-2026 |
-| **Companion documents** | `Sow-paid-build.md` (adds the native AWS security services), `Nexogent-Build-Spec.md` (engineering instructions) |
+| **Companion documents** | `Sow-paid-build.md` (adds the native AWS security services), `CodeSentinal.-Build-Spec.md` (engineering instructions) |
 
 ## 1. Summary
 
-Nexogent is installed into a managed client's AWS account. It discovers every resource across all enabled regions, audits it with its own read-only checks plus the open-source Prowler scanner, ranks findings by real risk, and keeps a history so it can say what is new, what was fixed, and what has been open for how long. It then produces the things an MSP actually hands to a client: a ranked fix list, a risk register, a branded posture report, and alerts.
+CodeSentinal. is installed into a managed client's AWS account. It discovers every resource across all enabled regions, audits it with its own read-only checks plus the open-source Prowler scanner, ranks findings by real risk, and keeps a history so it can say what is new, what was fixed, and what has been open for how long. It then produces the things an MSP actually hands to a client: a ranked fix list, a risk register, a branded posture report, and alerts.
 
 It is **read-only and recommend-only**. It never changes, deletes, restarts or remediates anything in the client account.
 
@@ -51,7 +51,7 @@ The current product (v1) discovers resources, runs checks, ranks findings and sh
 
 ### 2.1 Users
 
-| Who | What they do with Nexogent |
+| Who | What they do with CodeSentinal. |
 |----------------------------|------------------------------------------------------------------------|
 | **MSP security or cloud lead** (the `superadmin` in this release) | Runs scans, reviews findings, accepts risks, approves reports, sets alerts |
 | **MSP engineer** | Works through the fix list, applies the Terraform or CLI change through the MSP's normal change process |
@@ -158,7 +158,7 @@ The portal shows **GuardDuty, Security Hub and Inspector** under Settings with a
 
 ## 5. Out of scope
 
-- Any change, deletion, restart or remediation of client AWS resources. Nexogent is read-only and recommend-only. Fix-as-code produces text for a human to review.
+- Any change, deletion, restart or remediation of client AWS resources. CodeSentinal. is read-only and recommend-only. Fix-as-code produces text for a human to review.
 - **GuardDuty, Security Hub, Inspector and IAM Access Analyzer integration.** Shown as disabled toggles only. See `Sow-paid-build.md`.
 - AWS Organizations, multi-account and delegated-administrator views. Planned for a later release.
 - Named users, roles and single sign-on. This release has one `superadmin` role. Cognito or OIDC is planned.
@@ -174,14 +174,14 @@ The portal shows **GuardDuty, Security Hub and Inspector** under Settings with a
 
 | Workload | Kind | Role |
 |--------------------|--------------------|------------------------------------------------------------|
-| `nexogent-backend` | Deployment + Service | Go agent and API: discovery, own checks, scan ingestion, lifecycle, ranking, attack paths, reports, alerts. Runs under a read-only IAM role (IRSA) |
-| `nexogent-frontend` | Deployment + Service | React portal served by unprivileged Nginx, which proxies `/api` to the backend and sets security headers |
-| `nexogent-prowler` | CronJob (plus on-demand Jobs) | Prowler scanner. Writes results to the shared volume. On-demand Jobs are created by the backend from this CronJob |
+| `CodeSentinal.-backend` | Deployment + Service | Go agent and API: discovery, own checks, scan ingestion, lifecycle, ranking, attack paths, reports, alerts. Runs under a read-only IAM role (IRSA) |
+| `CodeSentinal.-frontend` | Deployment + Service | React portal served by unprivileged Nginx, which proxies `/api` to the backend and sets security headers |
+| `CodeSentinal.-prowler` | CronJob (plus on-demand Jobs) | Prowler scanner. Writes results to the shared volume. On-demand Jobs are created by the backend from this CronJob |
 | Results volume | PVC | Shared scan output. Scan pods are scheduled on the same node as the backend |
 | Ingress | AWS ALB | `/` to frontend, `/api` and `/health` to backend. HTTPS with an ACM certificate when configured; optional source IP allow-list |
 | Optional scanners | CronJobs | ScoutSuite and cloudsplaining, off by default |
 
-New in this build: a namespace-scoped Kubernetes role that lets the backend read the Prowler CronJob and create, get and list Jobs. It grants nothing on AWS and nothing outside the `nexogent` namespace.
+New in this build: a namespace-scoped Kubernetes role that lets the backend read the Prowler CronJob and create, get and list Jobs. It grants nothing on AWS and nothing outside the `CodeSentinal.` namespace.
 
 ### 6.2 Data
 
@@ -202,7 +202,7 @@ Without a table the backend falls back to memory, for demos and local mode only.
 
 ### 6.3 Interfaces
 
-The API is versioned under `/api/v1`. Existing endpoints keep their shape; new endpoints are additive. The summary list is in `Nexogent-Build-Spec.md`. All endpoints except health, login and auth status require a signed session.
+The API is versioned under `/api/v1`. Existing endpoints keep their shape; new endpoints are additive. The summary list is in `CodeSentinal.-Build-Spec.md`. All endpoints except health, login and auth status require a signed session.
 
 ### 6.4 Modes
 
@@ -214,18 +214,18 @@ The API is versioned under `/api/v1`. Existing endpoints keep their shape; new e
 
 ## 7. Security and safety principles
 
-- **Read-only on the client account.** The IAM role allows `Describe`, `Get` and `List` actions only. The single exception is read and write on Nexogent's own DynamoDB table.
+- **Read-only on the client account.** The IAM role allows `Describe`, `Get` and `List` actions only. The single exception is read and write on CodeSentinal.'s own DynamoDB table.
 - **No static AWS keys in the cluster.** Access is by IAM Roles for Service Accounts (IRSA). In local mode the engineer's own profile is mounted read-only and is not copied into any image.
 - **Portal not publicly readable.** Sign-in is required for every data endpoint. Sessions are signed, short-lived and never accepted in a URL. Logins are throttled. HTTPS is used when a certificate is configured, and an IP allow-list is available.
-- **Recommend-only.** Fix-as-code is text. It is labelled "review before applying" and includes what could break. Nexogent never runs it.
+- **Recommend-only.** Fix-as-code is text. It is labelled "review before applying" and includes what could break. CodeSentinal. never runs it.
 - **Secrets.** The superadmin password, the session secret and the Slack webhook are held in Kubernetes Secrets, never in the repository, and never returned by the API after they are saved.
 - **Outbound calls are limited.** The only outbound destinations are AWS APIs, Amazon Bedrock (optional) and the configured Slack webhook, which must be an HTTPS Slack address.
 - **Reports contain account findings.** They are generated on demand, stored only in the client's DynamoDB table, and downloaded only by an authenticated user. Bedrock, when used, receives aggregated counts and finding titles, not account IDs or resource names.
-- **Handover.** The client keeps full administrator rights. The supplier retains no standing access. `stop.sh --purge` removes everything Nexogent created.
+- **Handover.** The client keeps full administrator rights. The supplier retains no standing access. `stop.sh --purge` removes everything CodeSentinal. created.
 
 ## 8. Deliverables
 
-1. Nexogent v2 source: Go backend, React portal, Helm chart, scripts, on a `v2-msp` branch.
+1. CodeSentinal. v2 source: Go backend, React portal, Helm chart, scripts, on a `v2-msp` branch.
 2. Features F1 to F20 as described in section 4.
 3. Unit tests for all pure logic (lifecycle, deduplication, attack paths, fix templates, report rendering, auth tokens, alert suppression) and a documented verification checklist for the parts that call AWS.
 4. Updated Helm chart: HTTPS and IP allow-list values, session secret, Kubernetes role for deep scans, node co-location for scan pods.
@@ -282,7 +282,7 @@ The build is accepted when every criterion below passes. "Fixture" means a recor
 | AC-23 | `docker compose up` starts the portal from a fresh checkout | F18 | Manual check |
 | AC-24 | In demo mode every page shows the demo banner, no AWS call is made, and no credential is needed | F19 | Automated test plus manual check |
 | AC-25 | A new engineer deploys from the documents alone | F20 | Walkthrough |
-| AC-26 | No API write or modify call is made to any client resource; the IAM policy has no write action except on the Nexogent table | Safety | Policy review and a search of the code |
+| AC-26 | No API write or modify call is made to any client resource; the IAM policy has no write action except on the CodeSentinal. table | Safety | Policy review and a search of the code |
 | AC-27 | The word "Bedrock" never appears as a source on any finding; every report number matches the underlying data | Detection model | Automated test |
 | AC-28 | All features work with Bedrock unavailable | Detection model | Run the test suite and a manual walkthrough with Bedrock off |
 | AC-29 | The build compiles, passes `go vet` and all tests, and the portal builds without warnings | All | CI run |

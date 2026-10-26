@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/sriramg-aivar/nexogent/internal/types"
+	"github.com/sriramg-aivar/CodeSentinal./internal/types"
 )
 
 const maxAhead = 365 * 24 * time.Hour

@@ -1,5 +1,5 @@
 // Package fixes renders fix-as-code (Terraform + CLI) for common finding types
-// (F7). Pure: text/template over the finding's fields. Nexogent never runs these;
+// (F7). Pure: text/template over the finding's fields. CodeSentinal. never runs these;
 // each carries a "review before applying" label and a what-could-break note.
 package fixes
 
@@ -7,7 +7,7 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/sriramg-aivar/nexogent/internal/types"
+	"github.com/sriramg-aivar/CodeSentinal./internal/types"
 )
 
 // Fix is the rendered remediation for one finding.

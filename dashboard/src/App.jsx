@@ -46,18 +46,18 @@ export default function App() {
   const [route, setRoute] = useState(parseHash())
   const [booting, setBooting] = useState(true)
   const [theme, setTheme] = useState(() => {
-    try { return localStorage.getItem('nexogent_theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') } catch { return 'light' }
+    try { return localStorage.getItem('CodeSentinal._theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') } catch { return 'light' }
   })
   const [branding, setBranding] = useState({ msp_name: '', client_name: '' })
 
-  useEffect(() => { document.documentElement.setAttribute('data-theme', theme); try { localStorage.setItem('nexogent_theme', theme) } catch {} }, [theme])
+  useEffect(() => { document.documentElement.setAttribute('data-theme', theme); try { localStorage.setItem('CodeSentinal._theme', theme) } catch {} }, [theme])
   useEffect(() => { const f = () => setRoute(parseHash()); addEventListener('hashchange', f); return () => removeEventListener('hashchange', f) }, [])
   useEffect(() => {
     api.meta().then(m => { setMeta(m); if (!m.auth_required) setAuthed(true) }).catch(() => {}).finally(() => setBooting(false))
   }, [])
   useEffect(() => { if (authed) api.settings().then(s => setBranding(s.branding || {})).catch(() => {}) }, [authed])
 
-  if (booting) return <div className="empty">Loading Nexogent…</div>
+  if (booting) return <div className="empty">Loading CodeSentinal.…</div>
   if (meta?.auth_required && !authed) return <Login onLogin={t => { setToken(t); setAuthed(true) }} />
 
   const active = route.view === 'service' || route.view === 'resource' ? 'inventory' : route.view
@@ -66,7 +66,7 @@ export default function App() {
   return (
     <div className="shell">
       <aside className="sidebar">
-        <div className="brand"><span className="logo">◆</span> Nexogent</div>
+        <div className="brand"><span className="logo">◆</span> CodeSentinal.</div>
         <nav className="nav">
           {NAV.map(([key, label, Icon, href]) => (
             <a key={key} className={active === key ? 'active' : ''} onClick={() => navigate(href)} aria-current={active === key ? 'page' : undefined}>
@@ -78,7 +78,7 @@ export default function App() {
       <div className="main">
         <header className="topbar">
           <div>
-            <span className="org">{branding.msp_name || 'Nexogent'}</span>
+            <span className="org">{branding.msp_name || 'CodeSentinal.'}</span>
             {branding.client_name && <span className="client">· {branding.client_name}</span>}
           </div>
           <div className="spacer" />

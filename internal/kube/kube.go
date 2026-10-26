@@ -121,7 +121,7 @@ func (c *Client) CreateJobFromCronJob(ctx context.Context, cronjob, jobName stri
 		"metadata": map[string]any{
 			"name":        jobName,
 			"namespace":   c.namespace,
-			"labels":      map[string]string{"nexogent/deep-scan": "true"},
+			"labels":      map[string]string{"CodeSentinal./deep-scan": "true"},
 			"annotations": map[string]string{"cronjob.kubernetes.io/instantiate": "manual"},
 		},
 		"spec": withTTL(parsed.Spec.JobTemplate.Spec, ttl),
@@ -163,10 +163,10 @@ func (c *Client) GetJob(ctx context.Context, name string) (JobStatus, error) {
 	return parseJobStatus(b)
 }
 
-// ListDeepScanJobs lists jobs labelled nexogent/deep-scan=true.
+// ListDeepScanJobs lists jobs labelled CodeSentinal./deep-scan=true.
 func (c *Client) ListDeepScanJobs(ctx context.Context) ([]JobStatus, error) {
 	b, code, err := c.do(ctx, http.MethodGet,
-		fmt.Sprintf("/apis/batch/v1/namespaces/%s/jobs?labelSelector=nexogent/deep-scan=true", c.namespace), nil)
+		fmt.Sprintf("/apis/batch/v1/namespaces/%s/jobs?labelSelector=CodeSentinal./deep-scan=true", c.namespace), nil)
 	if err != nil {
 		return nil, err
 	}

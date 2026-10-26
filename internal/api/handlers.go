@@ -12,13 +12,13 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/sriramg-aivar/nexogent/internal/alerts"
-	"github.com/sriramg-aivar/nexogent/internal/audit"
-	"github.com/sriramg-aivar/nexogent/internal/fixes"
-	"github.com/sriramg-aivar/nexogent/internal/report"
-	"github.com/sriramg-aivar/nexogent/internal/risk"
-	"github.com/sriramg-aivar/nexogent/internal/settings"
-	"github.com/sriramg-aivar/nexogent/internal/types"
+	"github.com/sriramg-aivar/CodeSentinal./internal/alerts"
+	"github.com/sriramg-aivar/CodeSentinal./internal/audit"
+	"github.com/sriramg-aivar/CodeSentinal./internal/fixes"
+	"github.com/sriramg-aivar/CodeSentinal./internal/report"
+	"github.com/sriramg-aivar/CodeSentinal./internal/risk"
+	"github.com/sriramg-aivar/CodeSentinal./internal/settings"
+	"github.com/sriramg-aivar/CodeSentinal./internal/types"
 )
 
 // Routes wires the API with auth + security headers.
@@ -137,7 +137,7 @@ func (s *Server) cors(h http.Handler) http.Handler {
 // ---- public handlers ----
 
 func (s *Server) health(w http.ResponseWriter, r *http.Request) {
-	writeJSON(w, 200, map[string]any{"status": "ok", "service": "nexogent", "store": s.store.Kind()})
+	writeJSON(w, 200, map[string]any{"status": "ok", "service": "CodeSentinal.", "store": s.store.Kind()})
 }
 
 func (s *Server) meta(w http.ResponseWriter, r *http.Request) {
@@ -602,7 +602,7 @@ func (s *Server) deepScan(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	runID := randID()
-	jobName := "nexogent-prowler-ondemand-" + runID
+	jobName := "CodeSentinal.-prowler-ondemand-" + runID
 	if err := s.cfg.Kube.CreateJobFromCronJob(r.Context(), s.cfg.ProwlerCronJob, jobName); err != nil {
 		writeJSON(w, 502, map[string]string{"error": err.Error()})
 		return
@@ -767,7 +767,7 @@ func (s *Server) downloadReport(w http.ResponseWriter, r *http.Request, rec repo
 	}
 	s.st.logActivity(r.Context(), audit.Entry{Actor: "superadmin", Action: audit.ReportDownload, Target: rec.Meta.ID, Detail: ext})
 	w.Header().Set("Content-Type", ctype)
-	w.Header().Set("Content-Disposition", "attachment; filename=\"nexogent-report-"+safeName(rec.Meta.ID)+"."+ext+"\"")
+	w.Header().Set("Content-Disposition", "attachment; filename=\"CodeSentinal.-report-"+safeName(rec.Meta.ID)+"."+ext+"\"")
 	w.WriteHeader(200)
 	_, _ = w.Write(body)
 }
@@ -789,12 +789,12 @@ func (s *Server) activity(w http.ResponseWriter, r *http.Request) {
 	case "csv":
 		b, _ := audit.ExportCSV(entries)
 		w.Header().Set("Content-Type", "text/csv")
-		w.Header().Set("Content-Disposition", "attachment; filename=\"nexogent-activity.csv\"")
+		w.Header().Set("Content-Disposition", "attachment; filename=\"CodeSentinal.-activity.csv\"")
 		_, _ = w.Write(b)
 	case "json":
 		b, _ := audit.ExportJSON(entries)
 		w.Header().Set("Content-Type", "application/json")
-		w.Header().Set("Content-Disposition", "attachment; filename=\"nexogent-activity.json\"")
+		w.Header().Set("Content-Disposition", "attachment; filename=\"CodeSentinal.-activity.json\"")
 		_, _ = w.Write(b)
 	default:
 		writeJSON(w, 200, map[string]any{"entries": entries})
@@ -864,7 +864,7 @@ func (s *Server) explain(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) integrations(w http.ResponseWriter, r *http.Request) {
-	note := "This is a paid AWS service the client enables. Check current AWS pricing before enabling. Nexogent only reads findings."
+	note := "This is a paid AWS service the client enables. Check current AWS pricing before enabling. CodeSentinal. only reads findings."
 	writeJSON(w, 200, map[string]any{"integrations": []types.Integration{
 		{Key: "guardduty", Name: "Amazon GuardDuty", Enabled: false, Available: false,
 			Description: "Continuous threat detection (active threats, not just misconfig).", Note: note},

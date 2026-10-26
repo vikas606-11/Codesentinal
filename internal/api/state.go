@@ -4,11 +4,11 @@ import (
 	"context"
 	"time"
 
-	"github.com/sriramg-aivar/nexogent/internal/audit"
-	"github.com/sriramg-aivar/nexogent/internal/report"
-	"github.com/sriramg-aivar/nexogent/internal/settings"
-	"github.com/sriramg-aivar/nexogent/internal/store"
-	"github.com/sriramg-aivar/nexogent/internal/types"
+	"github.com/sriramg-aivar/CodeSentinal./internal/audit"
+	"github.com/sriramg-aivar/CodeSentinal./internal/report"
+	"github.com/sriramg-aivar/CodeSentinal./internal/settings"
+	"github.com/sriramg-aivar/CodeSentinal./internal/store"
+	"github.com/sriramg-aivar/CodeSentinal./internal/types"
 )
 
 // state wraps the KV store with typed helpers for v2 persistence.

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Nexogent — teardown to stop billing.
+# CodeSentinal. — teardown to stop billing.
 # Uninstalls the Helm release and scales the node group down. Does NOT delete
 # the cluster, the ECR repo, or the IAM policy/role (pass --purge for those).
 set -euo pipefail
@@ -7,18 +7,18 @@ set -euo pipefail
 REGION="${REGION:-us-east-1}"
 CLUSTER="${CLUSTER:-eks-lab}"
 NODEGROUP="${NODEGROUP:-core}"
-NAMESPACE="${NAMESPACE:-nexogent}"
-BACKEND_REPO="${BACKEND_REPO:-nexogent}"
-FRONTEND_REPO="${FRONTEND_REPO:-nexogent-frontend}"
-POLICY_NAME="${POLICY_NAME:-NexogentReadOnly}"
-ROLE_NAME="${ROLE_NAME:-NexogentReadOnly}"
-SA_NAME="${SA_NAME:-nexogent-sa}"
+NAMESPACE="${NAMESPACE:-CodeSentinal.}"
+BACKEND_REPO="${BACKEND_REPO:-CodeSentinal.}"
+FRONTEND_REPO="${FRONTEND_REPO:-CodeSentinal.-frontend}"
+POLICY_NAME="${POLICY_NAME:-CodeSentinal.ReadOnly}"
+ROLE_NAME="${ROLE_NAME:-CodeSentinal.ReadOnly}"
+SA_NAME="${SA_NAME:-CodeSentinal.-sa}"
 
 cd "$(dirname "$0")"
 ACCOUNT_ID="$(aws sts get-caller-identity --query Account --output text)"
 
 echo ">> Uninstalling Helm release"
-helm uninstall nexogent --namespace "${NAMESPACE}" 2>/dev/null || true
+helm uninstall CodeSentinal. --namespace "${NAMESPACE}" 2>/dev/null || true
 
 echo ">> Scaling node group ${NODEGROUP} down to 0 desired"
 aws eks update-nodegroup-config --cluster-name "${CLUSTER}" --nodegroup-name "${NODEGROUP}" \
@@ -34,7 +34,7 @@ if [[ "${1:-}" == "--purge" ]]; then
   aws iam delete-policy --policy-arn "${POLICY_ARN}" 2>/dev/null || true
   aws ecr delete-repository --repository-name "${BACKEND_REPO}" --region "${REGION}" --force 2>/dev/null || true
   aws ecr delete-repository --repository-name "${FRONTEND_REPO}" --region "${REGION}" --force 2>/dev/null || true
-  aws dynamodb delete-table --table-name "${REVIEWS_TABLE:-nexogent-reviews}" --region "${REGION}" 2>/dev/null || true
+  aws dynamodb delete-table --table-name "${REVIEWS_TABLE:-CodeSentinal.-reviews}" --region "${REGION}" 2>/dev/null || true
   kubectl delete namespace "${NAMESPACE}" 2>/dev/null || true
   echo ">> Purge complete."
 else

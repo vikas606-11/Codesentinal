@@ -15,7 +15,7 @@ func newTestClient(srv *httptest.Server) *Client {
 	return &Client{
 		host:      srv.URL,
 		token:     "test",
-		namespace: "nexogent",
+		namespace: "CodeSentinal.",
 		http:      srv.Client(),
 		available: true,
 	}
@@ -56,7 +56,7 @@ func TestCreateJobFromCronJobAndGet(t *testing.T) {
 	}))
 	defer srv.Close()
 	c := newTestClient(srv)
-	if err := c.CreateJobFromCronJob(context.Background(), "nexogent-prowler", "j1"); err != nil {
+	if err := c.CreateJobFromCronJob(context.Background(), "CodeSentinal.-prowler", "j1"); err != nil {
 		t.Fatalf("create: %v", err)
 	}
 	if !created {

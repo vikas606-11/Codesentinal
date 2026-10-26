@@ -1,4 +1,4 @@
-# Nexogent dashboard — React (Vite) built, served by Nginx.
+# CodeSentinal. dashboard — React (Vite) built, served by Nginx.
 # Stage 1: build the static SPA.
 FROM node:20-alpine AS build
 WORKDIR /app
@@ -11,7 +11,7 @@ RUN npm run build
 # Stage 2: Nginx runtime (unprivileged/rootless — runs as uid 101, port 8080).
 FROM nginxinc/nginx-unprivileged:1.27-alpine
 # Backend Service name/port, overridable via env at deploy time.
-ENV BACKEND_HOST=nexogent-backend \
+ENV BACKEND_HOST=CodeSentinal.-backend \
     BACKEND_PORT=8080
 COPY --from=build /app/dist /usr/share/nginx/html
 # Template is rendered with envsubst at container start.
